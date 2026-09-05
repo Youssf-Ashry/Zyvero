@@ -1,10 +1,39 @@
 # Zyvero
 
-Zyvero is a long-term AI-powered Project & Team Management SaaS platform. This repository currently represents the initial foundation for that product rather than the finished application.
+Zyvero is a long-term AI-powered Project & Team Management SaaS platform. This repository is being developed through incremental full-stack internship milestones.
 
-## Current development stage
+## Current state
 
-This project is in the foundational setup phase. It establishes the project structure, tooling, environment configuration, and dev workflow needed for future product build-out.
+The project foundation and the first internship milestone are complete. The current application includes a responsive professional company landing page; future internship tasks will extend the same Zyvero product.
+
+### Implemented
+
+- Zyvero project foundation and monorepo-style structure
+- React + TypeScript + Vite frontend
+- Tailwind CSS, React Router, and Lucide React
+- NestJS backend foundation
+- ESLint and Prettier configuration
+- Frontend and backend environment configuration foundation
+- Responsive company landing page (Task 1)
+- Landing-page navbar, footer, hero, product previews, value proposition, workflow, collaboration, intelligence, features, trust, and final CTA sections
+- Centralized Zyvero design tokens and semantic color system
+- Global design tokens in `frontend/src/index.css`
+- Tailwind semantic color utilities in `frontend/tailwind.config.js`
+
+## Project progress
+
+| Task                          | Status        |
+| ----------------------------- | ------------- |
+| Task 1 — Company Landing Page | **COMPLETED** |
+
+Task 1 was the first internship milestone. Future internship tasks will build additional Zyvero product capabilities on top of this foundation.
+
+## Design direction
+
+- Dark-first modern AI SaaS
+- Premium, minimal, technical visual language
+- Semantic design tokens for consistent styling
+- Responsive desktop and mobile experience
 
 ## Frontend stack
 
@@ -51,9 +80,29 @@ Zyvero/
 └── ...
 ```
 
-## Future scope
+## Planned future scope
 
-Planned product areas include project management, task workflows, team collaboration, AI integrations, document handling, analytics, notifications, and deployment. These are intentionally not implemented in this foundation.
+The following areas are planned and **not implemented yet**:
+
+- Authentication
+- Onboarding
+- Dashboard
+- Projects and tasks
+- Teams and collaboration workflows
+- Documents and knowledge base
+- AI workspace
+- LLM-powered features
+- RAG and project knowledge
+- AI project insights
+- Analytics
+- Notifications
+- Search and command palette
+- Settings
+- Billing
+- Integrations
+- Other future SaaS capabilities
+
+Login, dashboard, AI workspace, RAG, database integrations, Prisma, PostgreSQL, Docker, billing, and related business functionality are not currently implemented.
 
 ## Getting started
 
