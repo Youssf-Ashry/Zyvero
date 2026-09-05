@@ -3,11 +3,23 @@
 @tailwind utilities;
 
 :root {
+  --color-background: #08090d;
+  --color-surface: #101218;
+  --color-surface-secondary: #161922;
+  --color-border: #252936;
+  --color-primary: #7c5cfc;
+  --color-primary-hover: #8b70ff;
+  --color-foreground: #f5f5f7;
+  --color-muted: #969baa;
+  --color-success: #35d39a;
+  --color-warning: #f5b942;
+  --color-error: #ff5c6c;
+  --color-ai-gradient: linear-gradient(110deg, #7c5cfc 0%, #8b70ff 52%, #2ed3c6 100%);
   font-family: Inter, 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.87);
-  background: #020817;
+  color: var(--color-foreground);
+  background: var(--color-background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,14 +27,16 @@
 }
 
 html {
-  background-color: #020817;
+  background-color: var(--color-background);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(circle at top, rgba(34, 211, 238, 0.14), transparent 30%), #020817;
+  background:
+    radial-gradient(circle at top, rgba(34, 211, 238, 0.14), transparent 30%),
+    var(--color-background);
 }
 
 * {
