@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zyvero-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zyvero
+      POSTGRES_USER: zyvero
+      POSTGRES_PASSWORD: zyvero
+    ports:
+      - '5432:5432'
+    volumes:
+      - zyvero-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  zyvero-postgres-data:
