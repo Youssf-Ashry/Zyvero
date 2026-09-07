@@ -4,6 +4,8 @@ import { AiModule } from './ai/ai.module.js';
 import { appConfig } from './config/app.config.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { ContactModule } from './contact/contact.module.js';
+import { PrismaModule } from './prisma/prisma.module.js';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { AppService } from './app.service.js';
       load: [appConfig],
     }),
     AiModule,
+    PrismaModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],

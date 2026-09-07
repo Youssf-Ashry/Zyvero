@@ -17,7 +17,19 @@
 1. Open the `backend` directory.
 2. Copy `.env.example` to a local `.env` file if needed.
 3. Run `npm install`.
-4. Start the API with `npm run start:dev`.
+4. Start PostgreSQL from the repository root with `docker compose up -d postgres`.
+5. Start the API with `npm run start:dev`.
+
+## Contact / Inquiry flow
+
+The completed Task 2 flow is available at `POST /api/contact`.
+
+- The frontend Contact page submits `name`, `email`, `subject`, and `message`.
+- NestJS validates required, non-empty fields and email format.
+- Valid inquiries are persisted to PostgreSQL through Prisma.
+- The frontend displays loading, success, and user-safe error feedback.
+
+The Prisma migration is located under `backend/prisma/migrations/`.
 
 ## Quality checks
 
@@ -25,4 +37,4 @@
 - `npm run build`
 - `npx prettier --check .`
 
-These checks are intended to guard the project foundation and keep future changes consistent.
+These checks guard the current foundation and completed Task 1 and Task 2 implementations while keeping future changes consistent.

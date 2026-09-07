@@ -56,7 +56,10 @@ export default function Footer() {
           <ul className="space-y-3 text-sm text-muted">
             {companyLinks.map((link) => (
               <li key={link}>
-                <a href="#" className="transition hover:text-foreground">
+                <a
+                  href={link === 'Contact' ? '/contact' : '#'}
+                  className="transition hover:text-foreground"
+                >
                   {link}
                 </a>
               </li>

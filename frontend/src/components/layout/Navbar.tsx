@@ -1,8 +1,7 @@
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
-const navItems = ['Product', 'Solutions', 'AI', 'Resources', 'Pricing'];
-
+const navItems = ['Product', 'Solutions', 'AI', 'Resources', 'Pricing', 'Contact'];
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -21,7 +20,11 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-8 text-sm text-muted md:flex">
           {navItems.map((item) => (
-            <a key={item} href="#" className="transition hover:text-foreground">
+            <a
+              key={item}
+              href={item === 'Contact' ? '/contact' : '#'}
+              className="transition hover:text-foreground"
+            >
               {item}
             </a>
           ))}
@@ -56,7 +59,12 @@ export default function Navbar() {
         <div className="border-t border-[#1B1F2A] bg-background px-4 py-4 md:hidden">
           <div className="flex flex-col gap-4 text-sm text-foreground">
             {navItems.map((item) => (
-              <a key={item} href="#" className="rounded-lg px-2 py-2 hover:bg-surface">
+              <a
+                key={item}
+                href={item === 'Contact' ? '/contact' : '#'}
+                className="rounded-lg px-2 py-2 hover:bg-surface"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 {item}
               </a>
             ))}
