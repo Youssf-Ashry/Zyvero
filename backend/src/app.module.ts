@@ -6,6 +6,11 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { ContactModule } from './contact/contact.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { AuthModule } from './auth/auth.module.js';
+import { WorkspaceModule } from './workspace/workspace.module.js';
+import { ProjectModule } from './project/project.module.js';
+import { TaskModule } from './task/task.module.js';
+import { ContentModule } from './content/content.module.js';
 
 @Module({
   imports: [
@@ -17,6 +22,11 @@ import { PrismaModule } from './prisma/prisma.module.js';
     AiModule,
     PrismaModule,
     ContactModule,
+    AuthModule,
+    WorkspaceModule,
+    ProjectModule,
+    TaskModule,
+    ContentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

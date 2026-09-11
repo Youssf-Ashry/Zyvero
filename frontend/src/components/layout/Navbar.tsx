@@ -1,5 +1,6 @@
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const navItems = ['Product', 'Solutions', 'AI', 'Resources', 'Pricing', 'Contact'];
 export default function Navbar() {
@@ -31,18 +32,18 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-4 md:flex">
-          <button
-            type="button"
+          <Link
+            to="/login"
             className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary hover:text-white"
           >
             Sign In
-          </button>
-          <button
-            type="button"
+          </Link>
+          <Link
+            to="/signup"
             className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
           >
             Get Started
-          </button>
+          </Link>
         </div>
 
         <button

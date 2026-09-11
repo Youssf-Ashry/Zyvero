@@ -1,11 +1,14 @@
 import AppLayout from './layouts/AppLayout';
 import AppRoutes from './routes/AppRoutes';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
-    <AppLayout>
-      <AppRoutes />
-    </AppLayout>
+    <AuthProvider>
+      <AppLayout>
+        <AppRoutes />
+      </AppLayout>
+    </AuthProvider>
   );
 }
 

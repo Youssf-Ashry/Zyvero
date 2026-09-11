@@ -31,10 +31,22 @@ The completed Task 2 flow is available at `POST /api/contact`.
 
 The Prisma migration is located under `backend/prisma/migrations/`.
 
+## Authenticated application flow
+
+The local application foundation supports:
+
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+- Workspace-scoped project, task, and project content CRUD
+
+Start PostgreSQL before the backend, then use the frontend routes `/signup`, `/login`, `/dashboard`, `/projects`, and `/projects/:id/content`. Authentication uses a local JWT token and an HTTP-only cookie; passwords are hashed with bcrypt.
+
 ## Quality checks
 
 - `npm run lint`
 - `npm run build`
 - `npx prettier --check .`
 
-These checks guard the current foundation and completed Task 1 and Task 2 implementations while keeping future changes consistent.
+These checks guard the current foundation and completed Task 1, Task 2, and Task 3 implementations while keeping future changes consistent.
