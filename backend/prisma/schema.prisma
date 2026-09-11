@@ -76,6 +76,7 @@ model Workspace {
   owner     User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   members   WorkspaceMember[]
   projects  Project[]
+  contents  WorkspaceContent[]
   @@index([ownerId])
 }
 
@@ -141,4 +142,17 @@ model ProjectContent {
   creator     User               @relation("ContentCreator", fields: [creatorId], references: [id], onDelete: Restrict)
   @@index([projectId, type])
   @@index([creatorId])
+}
+
+model WorkspaceContent {
+  id          String             @id @default(uuid())
+  workspaceId String
+  title       String
+  content     String
+  type        ProjectContentType @default(NOTE)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  @@index([workspaceId, type])
+  @@index([workspaceId, updatedAt])
 }

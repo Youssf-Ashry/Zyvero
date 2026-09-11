@@ -31,6 +31,7 @@ The project foundation, landing page, Contact / Inquiry system, and initial auth
 - Workspace-scoped project CRUD
 - Project task CRUD with status, priority, and member assignment
 - Project Content / Knowledge CRUD
+- Workspace Knowledge CRUD for shared workspace guidelines, product information, and team processes
 - Protected frontend application shell with dashboard, projects, tasks, and knowledge routes
 - Real PostgreSQL-backed dashboard and project interfaces
 
@@ -41,8 +42,9 @@ The project foundation, landing page, Contact / Inquiry system, and initial auth
 | Task 1 — Company Landing Page        | **COMPLETED** |
 | Task 2 — Contact / Inquiry System    | **COMPLETED** |
 | Task 3 — Project Content / Knowledge | **COMPLETED** |
+| Workspace Knowledge                   | **COMPLETED** |
 
-Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system and Task 3 for project knowledge. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities.
+Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system and Task 3 for project knowledge. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
 
 ## Design direction
 
@@ -161,7 +163,14 @@ Start PostgreSQL through the existing Docker Compose configuration:
 docker compose up -d postgres
 ```
 
-The backend uses Prisma with the `ContactInquiry` model and the applied migration under `backend/prisma/migrations/`.
+The backend uses Prisma with the `ContactInquiry`, `User`, `Workspace`, `WorkspaceContent`, `Project`, `Task`, and `ProjectContent` models and applied migrations under `backend/prisma/migrations/`.
+
+Workspace Knowledge is available locally at `/knowledge` and uses:
+
+- `GET`, `POST`, `GET/:id`, `PATCH/:id`, and `DELETE/:id` under `/api/workspaces/:workspaceId/content`
+- Workspace membership authorization for every operation
+- `WorkspaceContent` for shared workspace information
+- `ProjectContent` through `/projects/:id/content` for project-specific knowledge
 
 ## Development guidelines
 

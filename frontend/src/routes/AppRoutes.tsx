@@ -8,6 +8,7 @@ import ProjectContentPage from '../pages/ProjectContentPage';
 import ProjectDetailPage from '../pages/ProjectDetailPage';
 import ProjectsPage from '../pages/ProjectsPage';
 import SignupPage from '../pages/SignupPage';
+import WorkspaceKnowledgePage from '../pages/WorkspaceKnowledgePage';
 
 export default function AppRoutes() {
   return (
@@ -48,7 +49,14 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route path="/content" element={<Navigate to="/projects" replace />} />
+      <Route
+        path="/knowledge"
+        element={
+          <ProtectedRoute>
+            <WorkspaceKnowledgePage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

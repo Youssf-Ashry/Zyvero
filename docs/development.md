@@ -40,8 +40,11 @@ The local application foundation supports:
 - `GET /api/auth/me`
 - `POST /api/auth/logout`
 - Workspace-scoped project, task, and project content CRUD
+- Workspace Knowledge CRUD at `/api/workspaces/:workspaceId/content`
 
-Start PostgreSQL before the backend, then use the frontend routes `/signup`, `/login`, `/dashboard`, `/projects`, and `/projects/:id/content`. Authentication uses a local JWT token and an HTTP-only cookie; passwords are hashed with bcrypt.
+Start PostgreSQL before the backend, then use the frontend routes `/signup`, `/login`, `/dashboard`, `/projects`, `/projects/:id/content`, and `/knowledge`. Authentication uses a local JWT token and an HTTP-only cookie; passwords are hashed with bcrypt.
+
+Workspace Knowledge is shared across the selected workspace and supports creating, listing, reading, updating, and deleting `WorkspaceContent` items. Project Knowledge remains separate at `/projects/:id/content` and operates on `ProjectContent`.
 
 ## Quality checks
 

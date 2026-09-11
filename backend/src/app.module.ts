@@ -11,6 +11,7 @@ import { WorkspaceModule } from './workspace/workspace.module.js';
 import { ProjectModule } from './project/project.module.js';
 import { TaskModule } from './task/task.module.js';
 import { ContentModule } from './content/content.module.js';
+import { WorkspaceContentModule } from './workspace-content/workspace-content.module.js';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ContentModule } from './content/content.module.js';
     ProjectModule,
     TaskModule,
     ContentModule,
+    WorkspaceContentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

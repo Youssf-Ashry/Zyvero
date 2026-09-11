@@ -9,7 +9,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const links = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/projects', label: 'Projects', icon: FolderKanban },
-    { to: '/content', label: 'Knowledge', icon: BookOpen },
+    { to: '/knowledge', label: 'Knowledge', icon: BookOpen },
   ];
   return (
     <div className="min-h-screen bg-background text-foreground">
