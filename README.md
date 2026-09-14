@@ -4,7 +4,7 @@ Zyvero is a long-term AI-powered Project & Team Management SaaS platform. This r
 
 ## Current state
 
-The project foundation, landing page, Contact / Inquiry system, and initial authenticated SaaS application foundation are implemented locally.
+The project foundation, landing page, Contact / Inquiry system, authentication, and initial authenticated SaaS application foundation are implemented locally.
 
 ### Implemented
 
@@ -27,6 +27,10 @@ The project foundation, landing page, Contact / Inquiry system, and initial auth
 - Responsive frontend Contact page with loading, success, and error states
 - Contact navigation from the landing-page footer
 - JWT authentication with signup, login, logout, and current-user sessions
+- User registration and login validation with bcrypt password hashing
+- Protected frontend routes through `ProtectedRoute`
+- Protected backend APIs through `AuthGuard`
+- Authenticated user state through the frontend auth context
 - Workspace and workspace-member foundations
 - Workspace-scoped project CRUD
 - Project task CRUD with status, priority, and member assignment
@@ -37,14 +41,17 @@ The project foundation, landing page, Contact / Inquiry system, and initial auth
 
 ## Project progress
 
-| Task                                 | Status        |
-| ------------------------------------ | ------------- |
-| Task 1 — Company Landing Page        | **COMPLETED** |
-| Task 2 — Contact / Inquiry System    | **COMPLETED** |
-| Task 3 — Project Content / Knowledge | **COMPLETED** |
-| Workspace Knowledge                   | **COMPLETED** |
+| Task                                        | Status        |
+| ------------------------------------------- | ------------- |
+| Task 1 — Company Landing Page               | **COMPLETED** |
+| Task 2 — Contact / Inquiry System           | **COMPLETED** |
+| Task 3 — Project Content / Knowledge        | **COMPLETED** |
+| Task 4 — User Registration & Authentication | **COMPLETED** |
+| Workspace Knowledge                         | **COMPLETED** |
 
-Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system and Task 3 for project knowledge. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
+Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system, Task 3 for project knowledge, and Task 4 for user registration and authentication. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
+
+Task 4 includes `/signup` and `/login`, backend request validation, JWT authentication, bcrypt password hashing, protected NestJS APIs, protected frontend routes, and authenticated user context.
 
 ## Design direction
 

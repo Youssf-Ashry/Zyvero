@@ -1,6 +1,6 @@
 # Zyvero Architecture
 
-This repository contains the current Zyvero foundation and the completed first three internship milestones.
+This repository contains the current Zyvero foundation and the completed first four internship milestones.
 
 ## Current Scope
 
@@ -13,13 +13,17 @@ This repository contains the current Zyvero foundation and the completed first t
 - Contact / Inquiry API at `POST /api/contact`
 - Frontend Contact page connected to the backend API
 - JWT authentication and protected NestJS routes
+- User signup and login with DTO validation and bcrypt password hashing
+- `AuthGuard` protection for authenticated backend APIs
+- `ProtectedRoute` protection for authenticated frontend routes
+- Authenticated user state through the frontend auth context
 - Workspace-scoped project, task, and project knowledge APIs
 - Workspace Knowledge CRUD for shared workspace information
 - Protected frontend application shell and dashboard
 
 ## Current State
 
-Task 1 provides the responsive company landing page and centralized Zyvero design system. Task 2 adds the Contact / Inquiry flow. Task 3 adds project knowledge CRUD. The current application foundation also includes JWT authentication, workspace membership, project CRUD, task CRUD, a protected dashboard, and Workspace Knowledge backed by PostgreSQL.
+Task 1 provides the responsive company landing page and centralized Zyvero design system. Task 2 adds the Contact / Inquiry flow. Task 3 adds project knowledge CRUD. Task 4 adds user registration and authentication through `/signup` and `/login`, with validated credentials, bcrypt password hashing, JWT authentication, `AuthGuard`-protected backend APIs, `ProtectedRoute`-protected frontend routes, and authenticated user context. The current application foundation also includes workspace membership, project CRUD, task CRUD, a protected dashboard, and Workspace Knowledge backed by PostgreSQL.
 
 ## Knowledge architecture
 

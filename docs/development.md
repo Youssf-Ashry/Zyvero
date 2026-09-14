@@ -42,7 +42,9 @@ The local application foundation supports:
 - Workspace-scoped project, task, and project content CRUD
 - Workspace Knowledge CRUD at `/api/workspaces/:workspaceId/content`
 
-Start PostgreSQL before the backend, then use the frontend routes `/signup`, `/login`, `/dashboard`, `/projects`, `/projects/:id/content`, and `/knowledge`. Authentication uses a local JWT token and an HTTP-only cookie; passwords are hashed with bcrypt.
+Start PostgreSQL before the backend, then use the frontend routes `/signup`, `/login`, `/dashboard`, `/projects`, `/projects/:id/content`, and `/knowledge`.
+
+Task 4 — User Registration & Authentication is completed. Signup and login requests are validated by NestJS DTOs, passwords are hashed with bcrypt, and successful authentication issues a JWT. Backend APIs use `AuthGuard`, frontend application routes use `ProtectedRoute`, and the authenticated user is exposed through the frontend auth context. Authentication uses a local JWT token and an HTTP-only cookie.
 
 Workspace Knowledge is shared across the selected workspace and supports creating, listing, reading, updating, and deleting `WorkspaceContent` items. Project Knowledge remains separate at `/projects/:id/content` and operates on `ProjectContent`.
 
@@ -52,4 +54,4 @@ Workspace Knowledge is shared across the selected workspace and supports creatin
 - `npm run build`
 - `npx prettier --check .`
 
-These checks guard the current foundation and completed Task 1, Task 2, and Task 3 implementations while keeping future changes consistent.
+These checks guard the current foundation and completed Task 1, Task 2, Task 3, and Task 4 implementations while keeping future changes consistent.
