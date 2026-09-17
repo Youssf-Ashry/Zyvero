@@ -38,6 +38,8 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 - Workspace Knowledge CRUD for shared workspace guidelines, product information, and team processes
 - Protected frontend application shell with dashboard, projects, tasks, and knowledge routes
 - Real PostgreSQL-backed dashboard and project interfaces
+- Customer Dashboard profile section with real authenticated user data
+- Profile name editing and local image avatar upload with replacement support
 
 ## Project progress
 
@@ -48,10 +50,13 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 | Task 3 — Project Content / Knowledge        | **COMPLETED** |
 | Task 4 — User Registration & Authentication | **COMPLETED** |
 | Workspace Knowledge                         | **COMPLETED** |
+| Task 5 — Customer Dashboard                 | **COMPLETED** |
 
 Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system, Task 3 for project knowledge, and Task 4 for user registration and authentication. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
 
 Task 4 includes `/signup` and `/login`, backend request validation, JWT authentication, bcrypt password hashing, protected NestJS APIs, protected frontend routes, and authenticated user context.
+
+Task 5 adds a protected Customer Dashboard profile section. It uses the authenticated user from `/api/auth/me`, supports name updates through `PATCH /api/auth/me`, and supports authenticated image uploads through `POST /api/auth/avatar`. Avatars are stored locally under `backend/uploads/avatars` for development and served by the backend; the `User.avatarUrl` field stores the resulting path. Workspace and project data remain separate from the personal profile.
 
 ## Design direction
 
@@ -170,7 +175,7 @@ Start PostgreSQL through the existing Docker Compose configuration:
 docker compose up -d postgres
 ```
 
-The backend uses Prisma with the `ContactInquiry`, `User`, `Workspace`, `WorkspaceContent`, `Project`, `Task`, and `ProjectContent` models and applied migrations under `backend/prisma/migrations/`.
+The backend uses Prisma with the `ContactInquiry`, `User`, `Workspace`, `WorkspaceContent`, `Project`, `Task`, and `ProjectContent` models and applied migrations under `backend/prisma/migrations/`. The `User` model includes an optional `avatarUrl` for local profile images.
 
 Workspace Knowledge is available locally at `/knowledge` and uses:
 

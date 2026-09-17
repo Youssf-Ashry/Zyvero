@@ -7,15 +7,24 @@ import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { unlink } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthUser } from './auth.types.js';
 import { LoginDto } from './dto/login.dto.js';
 import { SignupDto } from './dto/signup.dto.js';
 
-const publicUser = (user: { id: string; email: string; name: string; createdAt: Date }) => ({
+const publicUser = (user: {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+  createdAt: Date;
+}) => ({
   id: user.id,
   email: user.email,
   name: user.name,
+  avatarUrl: user.avatarUrl,
   createdAt: user.createdAt,
 });
 
@@ -52,7 +61,9 @@ export class AuthService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new ConflictException('An account with that email already exists');
+        throw new ConflictException(
+          'An account with that email already exists',
+        );
       }
       throw error;
     }
@@ -69,8 +80,37 @@ export class AuthService {
   }
 
   async me(authUser: AuthUser) {
-    const user = await this.prisma.user.findUnique({ where: { id: authUser.id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: authUser.id },
+    });
     if (!user) throw new UnauthorizedException('User no longer exists');
+    return publicUser(user);
+  }
+
+  async updateProfile(authUser: AuthUser, name: string) {
+    const user = await this.prisma.user.update({
+      where: { id: authUser.id },
+      data: { name: name.trim() },
+    });
+    return publicUser(user);
+  }
+
+  async updateAvatar(authUser: AuthUser, avatarUrl: string) {
+    const existing = await this.prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { avatarUrl: true },
+    });
+    const user = await this.prisma.user.update({
+      where: { id: authUser.id },
+      data: { avatarUrl },
+    });
+    if (existing?.avatarUrl?.startsWith('/uploads/avatars/')) {
+      try {
+        await unlink(resolve(process.cwd(), existing.avatarUrl.slice(1)));
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      }
+    }
     return publicUser(user);
   }
 

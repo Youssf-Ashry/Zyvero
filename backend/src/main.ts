@@ -1,10 +1,19 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import express from 'express';
+import { mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const uploadDirectory = resolve(process.cwd(), 'uploads');
+  mkdirSync(uploadDirectory, { recursive: true });
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .use('/uploads', express.static(uploadDirectory));
 
   app.setGlobalPrefix('api');
   app.enableCors({

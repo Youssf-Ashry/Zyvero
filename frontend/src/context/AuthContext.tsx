@@ -9,7 +9,13 @@ import {
 } from 'react';
 import { apiRequest } from '../services/api';
 
-export type User = { id: string; name: string; email: string; createdAt: string };
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string | null;
+  createdAt: string;
+};
 export type Workspace = {
   id: string;
   name: string;
@@ -26,6 +32,7 @@ type AuthContextValue = {
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshWorkspaces: () => Promise<void>;
+  refreshUser: () => Promise<User>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -40,17 +47,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setWorkspaces(result);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const currentUser = await apiRequest<User>('/auth/me');
+    setUser(currentUser);
+    return currentUser;
+  }, []);
+
   useEffect(() => {
-    apiRequest<User>('/auth/me')
-      .then(async (currentUser) => {
-        setUser(currentUser);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshUser()
+      .then(async () => {
         await refreshWorkspaces();
       })
       .catch(() => {
         localStorage.removeItem('zyvero_access_token');
       })
       .finally(() => setLoading(false));
-  }, [refreshWorkspaces]);
+  }, [refreshUser, refreshWorkspaces]);
 
   const signIn = useCallback(
     async (email: string, password: string) => {
@@ -95,8 +108,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOut,
       refreshWorkspaces,
+      refreshUser,
     }),
-    [user, workspaces, loading, signIn, signUp, signOut, refreshWorkspaces],
+    [user, workspaces, loading, signIn, signUp, signOut, refreshWorkspaces, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

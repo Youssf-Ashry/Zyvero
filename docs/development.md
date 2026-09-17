@@ -46,6 +46,8 @@ Start PostgreSQL before the backend, then use the frontend routes `/signup`, `/l
 
 Task 4 — User Registration & Authentication is completed. Signup and login requests are validated by NestJS DTOs, passwords are hashed with bcrypt, and successful authentication issues a JWT. Backend APIs use `AuthGuard`, frontend application routes use `ProtectedRoute`, and the authenticated user is exposed through the frontend auth context. Authentication uses a local JWT token and an HTTP-only cookie.
 
+Task 5 — Customer Dashboard is completed. The protected `/dashboard` route displays real authenticated profile data and keeps personal profile information separate from workspace data. Users can update their name with `PATCH /api/auth/me` and upload an image avatar with `POST /api/auth/avatar`. Avatar uploads are authenticated, image-only, limited to 5 MB, persisted through the nullable `User.avatarUrl` field, and stored locally in `backend/uploads/avatars` during development. The backend serves these files from `/uploads`, and the frontend refreshes its authenticated user context after profile changes.
+
 Workspace Knowledge is shared across the selected workspace and supports creating, listing, reading, updating, and deleting `WorkspaceContent` items. Project Knowledge remains separate at `/projects/:id/content` and operates on `ProjectContent`.
 
 ## Quality checks

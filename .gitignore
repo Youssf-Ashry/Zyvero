@@ -41,3 +41,6 @@ Thumbs.db
 
 # Test artifacts
 *.tsbuildinfo
+
+# Local uploaded profile images
+backend/uploads/
