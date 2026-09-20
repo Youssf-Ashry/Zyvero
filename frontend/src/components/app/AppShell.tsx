@@ -1,4 +1,13 @@
-import { BarChart3, BookOpen, FolderKanban, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
+import {
+  BarChart3,
+  BookOpen,
+  FolderKanban,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  X,
+  ShieldCheck,
+} from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -48,6 +57,31 @@ export default function AppShell({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </div>
+        {user?.role === 'ADMIN' && (
+          <div className="mt-8 border-t border-border pt-5">
+            <p className="mb-2 px-3 text-[10px] uppercase tracking-[0.2em] text-muted">
+              Administration
+            </p>
+            <NavLink
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${isActive ? 'bg-primary/15 text-foreground' : 'text-muted hover:bg-surface-secondary hover:text-foreground'}`
+              }
+            >
+              <ShieldCheck className="h-4 w-4" /> Admin Dashboard
+            </NavLink>
+            <NavLink
+              to="/admin/services"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                `mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${isActive ? 'bg-primary/15 text-foreground' : 'text-muted hover:bg-surface-secondary hover:text-foreground'}`
+              }
+            >
+              <FolderKanban className="h-4 w-4" /> Services
+            </NavLink>
+          </div>
+        )}
         <div className="absolute bottom-5 left-5 right-5 border-t border-border pt-4">
           <div className="mb-3 flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/20 text-sm text-primary">

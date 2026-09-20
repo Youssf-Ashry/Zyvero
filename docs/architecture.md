@@ -1,6 +1,6 @@
 # Zyvero Architecture
 
-This repository contains the current Zyvero foundation and the completed first five internship milestones.
+This repository contains the current Zyvero foundation and the completed first six internship milestones.
 
 ## Current Scope
 
@@ -21,10 +21,24 @@ This repository contains the current Zyvero foundation and the completed first f
 - Workspace Knowledge CRUD for shared workspace information
 - Protected frontend application shell and dashboard
 - Customer Dashboard profile editing and local avatar upload
+- Company Service Management and admin dashboard
 
 ## Current State
 
 Task 1 provides the responsive company landing page and centralized Zyvero design system. Task 2 adds the Contact / Inquiry flow. Task 3 adds project knowledge CRUD. Task 4 adds user registration and authentication through `/signup` and `/login`, with validated credentials, bcrypt password hashing, JWT authentication, `AuthGuard`-protected backend APIs, `ProtectedRoute`-protected frontend routes, and authenticated user context. Task 5 completes the Customer Dashboard profile section with real authenticated user data, name editing, and protected local avatar upload. The current application foundation also includes workspace membership, project CRUD, task CRUD, a protected dashboard, and Workspace Knowledge backed by PostgreSQL.
+
+Task 6 adds a global `UserRole` (`USER` or `ADMIN`) for company-level administration without changing `WorkspaceRole`. `AdminGuard` checks the current persisted user role after `AuthGuard` authenticates the JWT. The `Service` model is managed through protected admin APIs and exposed publicly only when active.
+
+## Company Service Management
+
+The service data flow is:
+
+```text
+Public HomePage -> GET /api/services -> ServicesService -> Prisma Service -> PostgreSQL
+Admin Services UI -> /api/admin/services -> AuthGuard + AdminGuard -> Prisma Service
+```
+
+`Service` stores its name, unique slug, descriptions, icon identifier, display order, active state, and timestamps. The public endpoint returns active services ordered by `sortOrder`; admin users can list, create, update, and delete all services. Admin UI is available at `/admin` and `/admin/services`.
 
 ## Customer Dashboard and profile
 

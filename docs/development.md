@@ -48,6 +48,17 @@ Task 4 — User Registration & Authentication is completed. Signup and login req
 
 Task 5 — Customer Dashboard is completed. The protected `/dashboard` route displays real authenticated profile data and keeps personal profile information separate from workspace data. Users can update their name with `PATCH /api/auth/me` and upload an image avatar with `POST /api/auth/avatar`. Avatar uploads are authenticated, image-only, limited to 5 MB, persisted through the nullable `User.avatarUrl` field, and stored locally in `backend/uploads/avatars` during development. The backend serves these files from `/uploads`, and the frontend refreshes its authenticated user context after profile changes.
 
+Task 6 — Company Service Management is completed. Users default to the global `USER` role; an `ADMIN` can manage services through:
+
+- `GET /api/services` for active public services
+- `GET /api/admin/services`
+- `POST /api/admin/services`
+- `GET /api/admin/services/:id`
+- `PATCH /api/admin/services/:id`
+- `DELETE /api/admin/services/:id`
+
+Admin endpoints require both `AuthGuard` authentication and `AdminGuard` authorization. The admin UI is available at `/admin` and `/admin/services`, while the public home page fetches the current service catalog from the API and handles loading, empty, and error states. Workspace membership roles remain independent from the global company admin role.
+
 Workspace Knowledge is shared across the selected workspace and supports creating, listing, reading, updating, and deleting `WorkspaceContent` items. Project Knowledge remains separate at `/projects/:id/content` and operates on `ProjectContent`.
 
 ## Quality checks

@@ -5,6 +5,7 @@ import type { StringValue } from 'ms';
 import { AuthController } from './auth.controller.js';
 import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
+import { AdminGuard } from './admin.guard.js';
 
 @Global()
 @Module({
@@ -21,7 +22,7 @@ import { AuthService } from './auth.service.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard],
-  exports: [AuthService, AuthGuard, JwtModule],
+  providers: [AuthService, AuthGuard, AdminGuard],
+  exports: [AuthService, AuthGuard, AdminGuard, JwtModule],
 })
 export class AuthModule {}

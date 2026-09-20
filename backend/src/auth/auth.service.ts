@@ -20,11 +20,13 @@ const publicUser = (user: {
   name: string;
   avatarUrl: string | null;
   createdAt: Date;
+  role: 'USER' | 'ADMIN';
 }) => ({
   id: user.id,
   email: user.email,
   name: user.name,
   avatarUrl: user.avatarUrl,
+  role: user.role,
   createdAt: user.createdAt,
 });
 
@@ -123,6 +125,7 @@ export class AuthService {
     const token = this.jwt.sign({
       sub: payload.id,
       email: payload.email,
+      role: payload.role,
     });
     return { user, token, ...(workspace ? { workspace } : {}) };
   }

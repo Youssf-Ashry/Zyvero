@@ -1,6 +1,7 @@
 export interface AuthUser {
   id: string;
   email: string;
+  role?: 'USER' | 'ADMIN';
 }
 
 export interface JwtPayload extends AuthUser {

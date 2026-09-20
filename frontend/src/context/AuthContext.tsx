@@ -15,6 +15,7 @@ export type User = {
   email: string;
   avatarUrl: string | null;
   createdAt: string;
+  role: 'USER' | 'ADMIN';
 };
 export type Workspace = {
   id: string;

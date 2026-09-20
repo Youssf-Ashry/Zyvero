@@ -19,6 +19,8 @@ import {
 import Footer from '../components/layout/Footer';
 import Navbar from '../components/layout/Navbar';
 import SectionEyebrow from '../components/ui/SectionEyebrow';
+import { useEffect, useState } from 'react';
+import { apiRequest } from '../services/api';
 
 const valueProps = [
   {
@@ -91,6 +93,19 @@ const trustPoints = [
 ];
 
 export default function HomePage() {
+  const [services, setServices] = useState<
+    Array<{ id: string; name: string; shortDescription: string; icon: string }>
+  >([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [servicesError, setServicesError] = useState('');
+  useEffect(() => {
+    apiRequest<Array<{ id: string; name: string; shortDescription: string; icon: string }>>(
+      '/services',
+    )
+      .then(setServices)
+      .catch(() => setServicesError('Services are temporarily unavailable.'))
+      .finally(() => setServicesLoading(false));
+  }, []);
   return (
     <div className="bg-background text-foreground">
       <Navbar />
@@ -213,6 +228,39 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section id="services" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <SectionEyebrow text="Our services" />
+            <h2 className="mt-5 text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl">
+              Services built for modern teams.
+            </h2>
+            <p className="mt-4 text-muted">Explore the capabilities currently offered by Zyvero.</p>
+          </div>
+          {servicesLoading && (
+            <p className="mt-10 text-center text-sm text-muted">Loading services...</p>
+          )}
+          {servicesError && <p className="mt-10 text-center text-sm text-error">{servicesError}</p>}
+          {!servicesLoading && !servicesError && services.length === 0 && (
+            <p className="mt-10 text-center text-sm text-muted">
+              No services are currently available.
+            </p>
+          )}
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {services.map((service) => (
+              <article
+                key={service.id}
+                className="rounded-2xl border border-border bg-surface p-6 transition hover:-translate-y-0.5 hover:border-primary/60"
+              >
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  {service.icon.slice(0, 1).toUpperCase()}
+                </div>
+                <h3 className="text-xl font-semibold text-white">{service.name}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted">{service.shortDescription}</p>
+              </article>
+            ))}
           </div>
         </section>
 

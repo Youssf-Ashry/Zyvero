@@ -9,6 +9,9 @@ import ProjectDetailPage from '../pages/ProjectDetailPage';
 import ProjectsPage from '../pages/ProjectsPage';
 import SignupPage from '../pages/SignupPage';
 import WorkspaceKnowledgePage from '../pages/WorkspaceKnowledgePage';
+import AdminRoute from '../components/auth/AdminRoute';
+import AdminDashboardPage from '../pages/AdminDashboardPage';
+import AdminServicesPage from '../pages/AdminServicesPage';
 
 export default function AppRoutes() {
   return (
@@ -55,6 +58,22 @@ export default function AppRoutes() {
           <ProtectedRoute>
             <WorkspaceKnowledgePage />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboardPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/services"
+        element={
+          <AdminRoute>
+            <AdminServicesPage />
+          </AdminRoute>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
