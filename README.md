@@ -40,6 +40,7 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 - Real PostgreSQL-backed dashboard and project interfaces
 - Company Service Management with admin-only service CRUD
 - Public website services loaded from the backend service catalog
+- Customer Service Request workflow with customer tracking and admin status management
 - Customer Dashboard profile section with real authenticated user data
 - Profile name editing and local image avatar upload with replacement support
 
@@ -54,6 +55,7 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 | Workspace Knowledge                         | **COMPLETED** |
 | Task 5 — Customer Dashboard                 | **COMPLETED** |
 | Task 6 — Company Service Management         | **COMPLETED** |
+| Task 7 — Customer Request Management        | **COMPLETED** |
 
 Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system, Task 3 for project knowledge, and Task 4 for user registration and authentication. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
 
@@ -62,6 +64,8 @@ Task 4 includes `/signup` and `/login`, backend request validation, JWT authenti
 Task 5 adds a protected Customer Dashboard profile section. It uses the authenticated user from `/api/auth/me`, supports name updates through `PATCH /api/auth/me`, and supports authenticated image uploads through `POST /api/auth/avatar`. Avatars are stored locally under `backend/uploads/avatars` for development and served by the backend; the `User.avatarUrl` field stores the resulting path. Workspace and project data remain separate from the personal profile.
 
 Task 6 adds Company Service Management. Global `USER` and `ADMIN` roles are separate from workspace membership roles. Admins can manage the database-backed service catalog through `/admin/services`, while the public website reads active services from `GET /api/services`.
+
+Task 7 adds Customer Request Management. Authenticated customers can select an active company service, submit a request, and track its status at `/requests`. Admins can review all requests and update their status from `/admin/requests`. Customer requests reference the existing `Service` model and remain separate from `ContactInquiry`.
 
 ## Design direction
 
@@ -190,6 +194,14 @@ Workspace Knowledge is available locally at `/knowledge` and uses:
 - `ProjectContent` through `/projects/:id/content` for project-specific knowledge
 
 The public website service section fetches the current active catalog from `/api/services`; it does not maintain a hardcoded service source of truth. Admin service management is available at `/admin` and `/admin/services` for users with the global `ADMIN` role.
+
+Customer requests are available locally at `/requests` and use:
+
+- `POST`, `GET`, and `GET/:id` under `/api/requests`
+- `GET`, `GET/:id`, and `PATCH/:id/status` under `/api/admin/requests`
+- `CustomerRequest` records linked to `User` and `Service`
+- `NEW`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED` request statuses
+- Server-side ownership checks for customer access and `AuthGuard` + `AdminGuard` for administration
 
 ## Development guidelines
 

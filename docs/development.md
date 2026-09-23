@@ -61,6 +61,16 @@ Admin endpoints require both `AuthGuard` authentication and `AdminGuard` authori
 
 Workspace Knowledge is shared across the selected workspace and supports creating, listing, reading, updating, and deleting `WorkspaceContent` items. Project Knowledge remains separate at `/projects/:id/content` and operates on `ProjectContent`.
 
+Task 7 — Customer Request Management is completed. Authenticated customers use `/requests` to select an active service from `GET /api/services`, submit a title and description, and track their own requests at `/requests/:id`. Customer APIs are:
+
+- `POST /api/requests`
+- `GET /api/requests`
+- `GET /api/requests/:id`
+
+Admins use `/admin/requests` and `/admin/requests/:id` to review requests and update status through `PATCH /api/admin/requests/:id/status`. Customer ownership is enforced from the authenticated JWT user; `customerId` is never accepted from the client. Admin endpoints require `AuthGuard` and `AdminGuard`. Request statuses are `NEW`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED`.
+
+Customer requests reference the existing Task 6 `Service` model and remain distinct from `ContactInquiry`. Inactive services cannot receive new requests, but existing requests remain associated with them.
+
 ## Quality checks
 
 - `npm run lint`

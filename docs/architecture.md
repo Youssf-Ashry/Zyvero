@@ -1,6 +1,6 @@
 # Zyvero Architecture
 
-This repository contains the current Zyvero foundation and the completed first six internship milestones.
+This repository contains the current Zyvero foundation and the completed first seven internship milestones.
 
 ## Current Scope
 
@@ -22,12 +22,15 @@ This repository contains the current Zyvero foundation and the completed first s
 - Protected frontend application shell and dashboard
 - Customer Dashboard profile editing and local avatar upload
 - Company Service Management and admin dashboard
+- Customer Request Management and admin status workflow
 
 ## Current State
 
 Task 1 provides the responsive company landing page and centralized Zyvero design system. Task 2 adds the Contact / Inquiry flow. Task 3 adds project knowledge CRUD. Task 4 adds user registration and authentication through `/signup` and `/login`, with validated credentials, bcrypt password hashing, JWT authentication, `AuthGuard`-protected backend APIs, `ProtectedRoute`-protected frontend routes, and authenticated user context. Task 5 completes the Customer Dashboard profile section with real authenticated user data, name editing, and protected local avatar upload. The current application foundation also includes workspace membership, project CRUD, task CRUD, a protected dashboard, and Workspace Knowledge backed by PostgreSQL.
 
 Task 6 adds a global `UserRole` (`USER` or `ADMIN`) for company-level administration without changing `WorkspaceRole`. `AdminGuard` checks the current persisted user role after `AuthGuard` authenticates the JWT. The `Service` model is managed through protected admin APIs and exposed publicly only when active.
+
+Task 7 adds `CustomerRequest`, which connects an authenticated customer to an existing `Service`. `RequestStatus` supports `NEW`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED`. Customers can create and read only their own requests; admins can list all requests, inspect safe customer details, and update status.
 
 ## Company Service Management
 
@@ -39,6 +42,14 @@ Admin Services UI -> /api/admin/services -> AuthGuard + AdminGuard -> Prisma Ser
 ```
 
 `Service` stores its name, unique slug, descriptions, icon identifier, display order, active state, and timestamps. The public endpoint returns active services ordered by `sortOrder`; admin users can list, create, update, and delete all services. Admin UI is available at `/admin` and `/admin/services`.
+
+## Customer Request architecture
+
+```text
+User -> CustomerRequest -> Service
+```
+
+The customer workflow uses `GET /api/services` for active service selection, `POST /api/requests` for submission, and `/requests` for ownership-scoped tracking. The administration workflow uses `/admin/requests` and `PATCH /api/admin/requests/:id/status`. Deactivating a service removes it from public listings and new request selection while preserving existing `CustomerRequest` records. Services with existing requests are protected from deletion.
 
 ## Customer Dashboard and profile
 

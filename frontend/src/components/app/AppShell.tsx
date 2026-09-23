@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  ClipboardList,
   X,
   ShieldCheck,
 } from 'lucide-react';
@@ -19,6 +20,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/projects', label: 'Projects', icon: FolderKanban },
     { to: '/knowledge', label: 'Knowledge', icon: BookOpen },
+    { to: '/requests', label: 'My Requests', icon: ClipboardList },
   ];
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -79,6 +81,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
               }
             >
               <FolderKanban className="h-4 w-4" /> Services
+            </NavLink>
+            <NavLink
+              to="/admin/requests"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                `mt-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${isActive ? 'bg-primary/15 text-foreground' : 'text-muted hover:bg-surface-secondary hover:text-foreground'}`
+              }
+            >
+              <ClipboardList className="h-4 w-4" /> Customer Requests
             </NavLink>
           </div>
         )}

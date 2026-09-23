@@ -12,6 +12,10 @@ import WorkspaceKnowledgePage from '../pages/WorkspaceKnowledgePage';
 import AdminRoute from '../components/auth/AdminRoute';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
 import AdminServicesPage from '../pages/AdminServicesPage';
+import RequestsPage from '../pages/RequestsPage';
+import RequestDetailsPage from '../pages/RequestDetailsPage';
+import AdminRequestsPage from '../pages/AdminRequestsPage';
+import AdminRequestDetailsPage from '../pages/AdminRequestDetailsPage';
 
 export default function AppRoutes() {
   return (
@@ -61,6 +65,22 @@ export default function AppRoutes() {
         }
       />
       <Route
+        path="/requests"
+        element={
+          <ProtectedRoute>
+            <RequestsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests/:id"
+        element={
+          <ProtectedRoute>
+            <RequestDetailsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin"
         element={
           <AdminRoute>
@@ -73,6 +93,22 @@ export default function AppRoutes() {
         element={
           <AdminRoute>
             <AdminServicesPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/requests"
+        element={
+          <AdminRoute>
+            <AdminRequestsPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/requests/:id"
+        element={
+          <AdminRoute>
+            <AdminRequestDetailsPage />
           </AdminRoute>
         }
       />

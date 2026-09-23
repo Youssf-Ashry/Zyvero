@@ -66,7 +66,19 @@ export class ServicesService {
 
   async remove(id: string) {
     await this.get(id);
-    await this.prisma.service.delete({ where: { id } });
+    try {
+      await this.prisma.service.delete({ where: { id } });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        throw new ConflictException(
+          'This service has customer requests and cannot be deleted',
+        );
+      }
+      throw error;
+    }
   }
 
   private toData(dto: CreateServiceDto | UpdateServiceDto) {

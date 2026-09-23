@@ -13,6 +13,7 @@ import { TaskModule } from './task/task.module.js';
 import { ContentModule } from './content/content.module.js';
 import { WorkspaceContentModule } from './workspace-content/workspace-content.module.js';
 import { ServicesModule } from './services/services.module.js';
+import { CustomerRequestModule } from './customer-request/customer-request.module.js';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ServicesModule } from './services/services.module.js';
     ContentModule,
     WorkspaceContentModule,
     ServicesModule,
+    CustomerRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],
