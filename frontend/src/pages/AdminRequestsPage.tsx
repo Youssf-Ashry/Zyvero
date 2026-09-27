@@ -11,10 +11,12 @@ type RequestItem = {
   status: Status;
   createdAt: string;
   updatedAt: string;
-  service: { name: string };
+  service: { id: string; name: string };
   customer: { name: string; email: string };
 };
-const filters: Array<{ label: string; value: '' | Status }> = [
+type Service = { id: string; name: string };
+
+const filters = [
   { label: 'All', value: '' },
   { label: 'New', value: 'NEW' },
   { label: 'In Progress', value: 'IN_PROGRESS' },
@@ -24,18 +26,41 @@ const filters: Array<{ label: string; value: '' | Status }> = [
 
 export default function AdminRequestsPage() {
   const [params, setParams] = useSearchParams();
-  const status = (params.get('status') ?? '') as '' | Status;
   const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const search = params.get('search') ?? '';
+  const status = params.get('status') ?? '';
+  const serviceId = params.get('serviceId') ?? '';
+  const dateRange = params.get('dateRange') ?? '';
+
+  useEffect(() => {
+    apiRequest<Service[]>('/admin/services')
+      .then(setServices)
+      .catch(() => setError('Unable to load service filters.'));
+  }, []);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
-    apiRequest<RequestItem[]>(`/admin/requests${status ? `?status=${status}` : ''}`)
+    setError('');
+    const query = params.toString();
+    apiRequest<RequestItem[]>(`/admin/requests${query ? `?${query}` : ''}`)
       .then(setRequests)
       .catch((err) => setError(err instanceof Error ? err.message : 'Unable to load requests.'))
       .finally(() => setLoading(false));
-  }, [status]);
+  }, [params]);
+
+  const setFilter = (key: string, value: string) => {
+    const next = new URLSearchParams(params);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setParams(next);
+  };
+
+  const clearFilters = () => setParams({});
+
   return (
     <AppShell>
       <div className="space-y-8">
@@ -44,19 +69,59 @@ export default function AdminRequestsPage() {
           <h1 className="mt-3 text-3xl font-semibold text-white">Customer Requests</h1>
           <p className="mt-2 text-muted">Review and manage incoming service requests.</p>
         </header>
-        <div className="flex flex-wrap gap-2">
-          {filters.map((filter) => (
-            <button
-              key={filter.label}
-              onClick={() => {
-                if (filter.value) setParams({ status: filter.value });
-                else setParams({});
-              }}
-              className={`rounded-full border px-3 py-2 text-xs ${status === filter.value ? 'border-primary bg-primary/15 text-white' : 'border-border text-muted hover:text-white'}`}
-            >
-              {filter.label}
-            </button>
-          ))}
+        <div className="grid gap-3 rounded-2xl border border-border bg-surface p-5 md:grid-cols-2 lg:grid-cols-4">
+          <input
+            value={search}
+            onChange={(event) => setFilter('search', event.target.value)}
+            placeholder="Search requests, customers, services..."
+            className="rounded-xl border border-border bg-surface-secondary p-3 text-sm text-foreground outline-none focus:border-primary lg:col-span-2"
+          />
+          <select
+            value={status}
+            onChange={(event) => setFilter('status', event.target.value)}
+            className="rounded-xl border border-border bg-surface-secondary p-3 text-sm text-foreground outline-none focus:border-primary"
+          >
+            <option value="">All statuses</option>
+            {filters.slice(1).map((filter) => (
+              <option key={filter.value} value={filter.value}>
+                {filter.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={serviceId}
+            onChange={(event) => setFilter('serviceId', event.target.value)}
+            className="rounded-xl border border-border bg-surface-secondary p-3 text-sm text-foreground outline-none focus:border-primary"
+          >
+            <option value="">All services</option>
+            {services.map((service) => (
+              <option key={service.id} value={service.id}>
+                {service.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={dateRange}
+            onChange={(event) => setFilter('dateRange', event.target.value)}
+            className="rounded-xl border border-border bg-surface-secondary p-3 text-sm text-foreground outline-none focus:border-primary"
+          >
+            <option value="">All dates</option>
+            <option value="TODAY">Today</option>
+            <option value="LAST_7_DAYS">Last 7 days</option>
+            <option value="LAST_30_DAYS">Last 30 days</option>
+          </select>
+          <button
+            onClick={clearFilters}
+            className="w-fit rounded-xl border border-border px-4 py-3 text-sm text-muted hover:border-primary hover:text-white"
+          >
+            Clear filters
+          </button>
+        </div>
+        <div className="flex items-center justify-between text-sm text-muted">
+          <span>
+            {requests.length} result{requests.length === 1 ? '' : 's'}
+          </span>
+          {params.toString() && <span>Active filters applied</span>}
         </div>
         {error && (
           <p className="rounded-xl border border-error/40 bg-error/10 p-4 text-sm text-error">
@@ -67,7 +132,9 @@ export default function AdminRequestsPage() {
           {loading ? (
             <p className="p-5 text-sm text-muted">Loading requests...</p>
           ) : requests.length === 0 ? (
-            <p className="p-5 text-sm text-muted">No requests match this filter.</p>
+            <p className="p-5 text-sm text-muted">
+              No requests found. Try changing your search or filters.
+            </p>
           ) : (
             <div className="divide-y divide-border">
               {requests.map((request) => (

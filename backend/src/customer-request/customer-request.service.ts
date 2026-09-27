@@ -7,6 +7,10 @@ import {
 import { Prisma, RequestStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateCustomerRequestDto } from './dto/create-customer-request.dto.js';
+import {
+  AdminRequestQueryDto,
+  RequestDateRange,
+} from './dto/admin-request-query.dto.js';
 
 const customerSelect = {
   id: true,
@@ -73,12 +77,50 @@ export class CustomerRequestService {
     }
   }
 
-  listForAdmin(status?: RequestStatus) {
+  listForAdmin(query: AdminRequestQueryDto = {}) {
+    const search = query.search?.trim();
+    const dateStart = this.dateStart(query.dateRange);
     return this.prisma.customerRequest.findMany({
-      where: status ? { status } : undefined,
+      where: {
+        ...(query.status && query.status !== 'ALL'
+          ? { status: query.status }
+          : {}),
+        ...(query.serviceId ? { serviceId: query.serviceId } : {}),
+        ...(dateStart ? { createdAt: { gte: dateStart } } : {}),
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+                {
+                  customer: { name: { contains: search, mode: 'insensitive' } },
+                },
+                {
+                  customer: {
+                    email: { contains: search, mode: 'insensitive' },
+                  },
+                },
+                {
+                  service: { name: { contains: search, mode: 'insensitive' } },
+                },
+              ],
+            }
+          : {}),
+      },
       include: requestInclude,
       orderBy: { updatedAt: 'desc' },
     });
+  }
+
+  private dateStart(range?: RequestDateRange) {
+    if (!range || range === RequestDateRange.ALL) return undefined;
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    if (range === RequestDateRange.LAST_7_DAYS)
+      start.setDate(start.getDate() - 6);
+    if (range === RequestDateRange.LAST_30_DAYS)
+      start.setDate(start.getDate() - 29);
+    return start;
   }
 
   async getForAdmin(id: string) {

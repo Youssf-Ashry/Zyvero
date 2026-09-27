@@ -71,6 +71,10 @@ Admins use `/admin/requests` and `/admin/requests/:id` to review requests and up
 
 Customer requests reference the existing Task 6 `Service` model and remain distinct from `ContactInquiry`. Inactive services cannot receive new requests, but existing requests remain associated with them.
 
+Task 8 — Search & Filtering is completed for `/admin/requests` and `/tasks`. The admin request page sends `search`, `status`, `serviceId`, and `dateRange` to `GET /api/admin/requests`. The Tasks page sends `search`, `status`, `priority`, `assigneeId`, and `projectId` to `GET /api/workspaces/:workspaceId/tasks`.
+
+All filters are validated and applied in Prisma/PostgreSQL, including relational request search across customers and services. Filter state is synchronized with URL query parameters for refresh and navigation behavior. The frontend displays result counts and loading, empty, error, and cleared-filter states without fetching the full dataset for local filtering. Request search remains protected by `AuthGuard` and `AdminGuard`; task search preserves workspace membership authorization.
+
 ## Quality checks
 
 - `npm run lint`

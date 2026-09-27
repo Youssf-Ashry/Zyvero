@@ -1,6 +1,6 @@
 # Zyvero Architecture
 
-This repository contains the current Zyvero foundation and the completed first seven internship milestones.
+This repository contains the current Zyvero foundation and the completed first eight internship milestones.
 
 ## Current Scope
 
@@ -23,6 +23,7 @@ This repository contains the current Zyvero foundation and the completed first s
 - Customer Dashboard profile editing and local avatar upload
 - Company Service Management and admin dashboard
 - Customer Request Management and admin status workflow
+- Database-backed search and filtering for requests and tasks
 
 ## Current State
 
@@ -31,6 +32,8 @@ Task 1 provides the responsive company landing page and centralized Zyvero desig
 Task 6 adds a global `UserRole` (`USER` or `ADMIN`) for company-level administration without changing `WorkspaceRole`. `AdminGuard` checks the current persisted user role after `AuthGuard` authenticates the JWT. The `Service` model is managed through protected admin APIs and exposed publicly only when active.
 
 Task 7 adds `CustomerRequest`, which connects an authenticated customer to an existing `Service`. `RequestStatus` supports `NEW`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED`. Customers can create and read only their own requests; admins can list all requests, inspect safe customer details, and update status.
+
+Task 8 adds backend-connected search and filtering to the existing Admin Customer Requests and workspace Tasks sections. URL query state is validated by NestJS and translated into Prisma `where` conditions executed by PostgreSQL.
 
 ## Company Service Management
 
@@ -50,6 +53,16 @@ User -> CustomerRequest -> Service
 ```
 
 The customer workflow uses `GET /api/services` for active service selection, `POST /api/requests` for submission, and `/requests` for ownership-scoped tracking. The administration workflow uses `/admin/requests` and `PATCH /api/admin/requests/:id/status`. Deactivating a service removes it from public listings and new request selection while preserving existing `CustomerRequest` records. Services with existing requests are protected from deletion.
+
+## Search and filtering architecture
+
+```text
+URL query state -> NestJS validation -> Prisma where -> PostgreSQL -> filtered results
+```
+
+Admin Customer Requests accepts `search`, `status`, `serviceId`, and `dateRange`. Search is case-insensitive across request title/description, customer name/email, and service name. Status, service, and date filters combine with AND semantics.
+
+Workspace Tasks accepts `search`, `status`, `priority`, `assigneeId`, and `projectId` through `GET /api/workspaces/:workspaceId/tasks`. Search covers task title and description, while project and assignee filters use the existing relations and workspace authorization. The `/admin/requests` and `/tasks` pages keep filter state in the URL and render backend-filtered results; local array filtering is not the source of truth.
 
 ## Customer Dashboard and profile
 

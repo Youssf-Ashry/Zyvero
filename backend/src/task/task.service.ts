@@ -1,10 +1,15 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { TaskPriority, TaskStatus, WorkspaceRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ProjectService } from '../project/project.service.js';
 import { WorkspaceService } from '../workspace/workspace.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
+import { TaskQueryDto } from './dto/task-query.dto.js';
 
 @Injectable()
 export class TaskService {
@@ -16,48 +21,137 @@ export class TaskService {
 
   async list(workspaceId: string, projectId: string, userId: string) {
     await this.projects.assertProject(workspaceId, projectId, userId);
-    return this.prisma.task.findMany({ where: { projectId }, orderBy: { createdAt: 'desc' } });
+    return this.prisma.task.findMany({
+      where: { projectId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  async create(workspaceId: string, projectId: string, userId: string, dto: CreateTaskDto) {
+  async listWorkspace(
+    workspaceId: string,
+    userId: string,
+    query: TaskQueryDto = {},
+  ) {
+    await this.workspace.assertMember(workspaceId, userId);
+    return this.prisma.task.findMany({
+      where: {
+        project: { workspaceId },
+        ...(query.projectId ? { projectId: query.projectId } : {}),
+        ...(query.status ? { status: query.status } : {}),
+        ...(query.priority ? { priority: query.priority } : {}),
+        ...(query.assigneeId ? { assigneeId: query.assigneeId } : {}),
+        ...(query.search?.trim()
+          ? {
+              OR: [
+                {
+                  title: { contains: query.search.trim(), mode: 'insensitive' },
+                },
+                {
+                  description: {
+                    contains: query.search.trim(),
+                    mode: 'insensitive',
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+      include: {
+        project: { select: { id: true, name: true } },
+        assignee: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async create(
+    workspaceId: string,
+    projectId: string,
+    userId: string,
+    dto: CreateTaskDto,
+  ) {
     await this.projects.assertProject(workspaceId, projectId, userId);
     await this.assertAssignee(workspaceId, dto.assigneeId);
     return this.prisma.task.create({
       data: {
-        projectId, creatorId: userId, title: dto.title.trim(), description: dto.description?.trim(),
-        status: dto.status ?? TaskStatus.TODO, priority: dto.priority ?? TaskPriority.MEDIUM,
-        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined, assigneeId: dto.assigneeId,
+        projectId,
+        creatorId: userId,
+        title: dto.title.trim(),
+        description: dto.description?.trim(),
+        status: dto.status ?? TaskStatus.TODO,
+        priority: dto.priority ?? TaskPriority.MEDIUM,
+        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+        assigneeId: dto.assigneeId,
       },
     });
   }
 
-  async get(workspaceId: string, projectId: string, taskId: string, userId: string) {
+  async get(
+    workspaceId: string,
+    projectId: string,
+    taskId: string,
+    userId: string,
+  ) {
     await this.projects.assertProject(workspaceId, projectId, userId);
-    const task = await this.prisma.task.findFirst({ where: { id: taskId, projectId } });
+    const task = await this.prisma.task.findFirst({
+      where: { id: taskId, projectId },
+    });
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
 
-  async update(workspaceId: string, projectId: string, taskId: string, userId: string, dto: UpdateTaskDto) {
-    const { member, project } = await this.projects.assertProject(workspaceId, projectId, userId);
+  async update(
+    workspaceId: string,
+    projectId: string,
+    taskId: string,
+    userId: string,
+    dto: UpdateTaskDto,
+  ) {
+    const { member, project } = await this.projects.assertProject(
+      workspaceId,
+      projectId,
+      userId,
+    );
     const task = await this.get(workspaceId, projectId, taskId, userId);
-    if (member.role === WorkspaceRole.MEMBER && project.ownerId !== userId && task.creatorId !== userId && task.assigneeId !== userId) {
+    if (
+      member.role === WorkspaceRole.MEMBER &&
+      project.ownerId !== userId &&
+      task.creatorId !== userId &&
+      task.assigneeId !== userId
+    ) {
       throw new ForbiddenException('You do not own this task');
     }
     await this.assertAssignee(workspaceId, dto.assigneeId);
     return this.prisma.task.update({
       where: { id: taskId },
       data: {
-        title: dto.title?.trim(), description: dto.description?.trim(), status: dto.status,
-        priority: dto.priority, dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined, assigneeId: dto.assigneeId,
+        title: dto.title?.trim(),
+        description: dto.description?.trim(),
+        status: dto.status,
+        priority: dto.priority,
+        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+        assigneeId: dto.assigneeId,
       },
     });
   }
 
-  async remove(workspaceId: string, projectId: string, taskId: string, userId: string) {
-    const { member, project } = await this.projects.assertProject(workspaceId, projectId, userId);
+  async remove(
+    workspaceId: string,
+    projectId: string,
+    taskId: string,
+    userId: string,
+  ) {
+    const { member, project } = await this.projects.assertProject(
+      workspaceId,
+      projectId,
+      userId,
+    );
     const task = await this.get(workspaceId, projectId, taskId, userId);
-    if (member.role === WorkspaceRole.MEMBER && project.ownerId !== userId && task.creatorId !== userId) {
+    if (
+      member.role === WorkspaceRole.MEMBER &&
+      project.ownerId !== userId &&
+      task.creatorId !== userId
+    ) {
       throw new ForbiddenException('You do not own this task');
     }
     await this.prisma.task.delete({ where: { id: taskId } });

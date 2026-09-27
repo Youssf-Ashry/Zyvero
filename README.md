@@ -41,6 +41,7 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 - Company Service Management with admin-only service CRUD
 - Public website services loaded from the backend service catalog
 - Customer Service Request workflow with customer tracking and admin status management
+- Backend-connected search and filtering for customer requests and workspace tasks
 - Customer Dashboard profile section with real authenticated user data
 - Profile name editing and local image avatar upload with replacement support
 
@@ -56,6 +57,7 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 | Task 5 — Customer Dashboard                 | **COMPLETED** |
 | Task 6 — Company Service Management         | **COMPLETED** |
 | Task 7 — Customer Request Management        | **COMPLETED** |
+| Task 8 — Search & Filtering                 | **COMPLETED** |
 
 Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system, Task 3 for project knowledge, and Task 4 for user registration and authentication. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
 
@@ -66,6 +68,8 @@ Task 5 adds a protected Customer Dashboard profile section. It uses the authenti
 Task 6 adds Company Service Management. Global `USER` and `ADMIN` roles are separate from workspace membership roles. Admins can manage the database-backed service catalog through `/admin/services`, while the public website reads active services from `GET /api/services`.
 
 Task 7 adds Customer Request Management. Authenticated customers can select an active company service, submit a request, and track its status at `/requests`. Admins can review all requests and update their status from `/admin/requests`. Customer requests reference the existing `Service` model and remain separate from `ContactInquiry`.
+
+Task 8 adds database-backed Search & Filtering to `/admin/requests` and `/tasks`. Search and filter values are synchronized with URL query parameters and applied by NestJS/Prisma against PostgreSQL; the frontend does not fetch an entire dataset and filter it locally.
 
 ## Design direction
 
@@ -202,6 +206,13 @@ Customer requests are available locally at `/requests` and use:
 - `CustomerRequest` records linked to `User` and `Service`
 - `NEW`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED` request statuses
 - Server-side ownership checks for customer access and `AuthGuard` + `AdminGuard` for administration
+
+Search and filtering endpoints:
+
+- `GET /api/admin/requests?search=&status=&serviceId=&dateRange=`
+- `GET /api/workspaces/:workspaceId/tasks?search=&status=&priority=&assigneeId=&projectId=`
+
+Request filters support status, service, and `TODAY`, `LAST_7_DAYS`, or `LAST_30_DAYS` date ranges. Task filters support the existing task status and priority enums plus real workspace assignee and project relations.
 
 ## Development guidelines
 

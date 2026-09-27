@@ -6,6 +6,7 @@ import {
   LogOut,
   Menu,
   ClipboardList,
+  ListTodo,
   X,
   ShieldCheck,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     { to: '/projects', label: 'Projects', icon: FolderKanban },
     { to: '/knowledge', label: 'Knowledge', icon: BookOpen },
     { to: '/requests', label: 'My Requests', icon: ClipboardList },
+    { to: '/tasks', label: 'Tasks', icon: ListTodo },
   ];
   return (
     <div className="min-h-screen bg-background text-foreground">

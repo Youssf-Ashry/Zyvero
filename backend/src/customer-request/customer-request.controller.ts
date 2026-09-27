@@ -1,6 +1,5 @@
 import {
   Body,
-  BadRequestException,
   Controller,
   Get,
   Param,
@@ -16,7 +15,7 @@ import type { AuthUser } from '../auth/auth.types.js';
 import { CreateCustomerRequestDto } from './dto/create-customer-request.dto.js';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto.js';
 import { CustomerRequestService } from './customer-request.service.js';
-import { RequestStatus } from '@prisma/client';
+import { AdminRequestQueryDto } from './dto/admin-request-query.dto.js';
 
 @Controller('requests')
 @UseGuards(AuthGuard)
@@ -45,14 +44,8 @@ export class AdminCustomerRequestController {
   constructor(private readonly requests: CustomerRequestService) {}
 
   @Get()
-  list(@Query('status') status?: string) {
-    if (
-      status &&
-      !Object.values(RequestStatus).includes(status as RequestStatus)
-    ) {
-      throw new BadRequestException('Invalid request status');
-    }
-    return this.requests.listForAdmin(status as RequestStatus | undefined);
+  list(@Query() query: AdminRequestQueryDto) {
+    return this.requests.listForAdmin(query);
   }
 
   @Get(':id')

@@ -16,6 +16,7 @@ import RequestsPage from '../pages/RequestsPage';
 import RequestDetailsPage from '../pages/RequestDetailsPage';
 import AdminRequestsPage from '../pages/AdminRequestsPage';
 import AdminRequestDetailsPage from '../pages/AdminRequestDetailsPage';
+import TasksPage from '../pages/TasksPage';
 
 export default function AppRoutes() {
   return (
@@ -69,6 +70,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <RequestsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tasks"
+        element={
+          <ProtectedRoute>
+            <TasksPage />
           </ProtectedRoute>
         }
       />
