@@ -75,6 +75,24 @@ Task 8 — Search & Filtering is completed for `/admin/requests` and `/tasks`. T
 
 All filters are validated and applied in Prisma/PostgreSQL, including relational request search across customers and services. Filter state is synchronized with URL query parameters for refresh and navigation behavior. The frontend displays result counts and loading, empty, error, and cleared-filter states without fetching the full dataset for local filtering. Request search remains protected by `AuthGuard` and `AdminGuard`; task search preserves workspace membership authorization.
 
+## Role-based access control
+
+Task 9 is completed with global and workspace authorization kept separate:
+
+- `UserRole.ADMIN` is a platform role enforced by `AdminGuard`.
+- `WorkspaceRole.OWNER`, `ADMIN`, and `MEMBER` are membership roles resolved from the database.
+- `Permission` and `workspaceRolePermissions` are the single workspace permission source of truth.
+- `@RequirePermissions(...)` and `WorkspacePermissionGuard` protect workspace-scoped controllers after `AuthGuard`.
+- Project, task, project-knowledge, workspace-knowledge, and member APIs verify the requested workspace membership.
+- `TASK_ASSIGN` is checked server-side when a task assignee is created or changed.
+- Existing ownership checks remain in project/task/content services and further restrict member-owned operations.
+
+Add a future permission by updating the centralized enum and role mapping, then applying `@RequirePermissions` to the relevant route. Do not add frontend-only security checks or trust role values supplied by clients. Use `401` for unauthenticated requests and `403` for authenticated non-members or insufficient permissions.
+
+## Workspace Members management
+
+Open `/settings/members` from the authenticated application shell to manage the current workspace. Owners and workspace admins can add existing Zyvero users by email as `MEMBER` or `ADMIN`, update non-owner roles, and remove non-owner members according to their permissions. The page never offers `OWNER`; the backend DTO validation and service checks reject `OWNER` even if a request is manually crafted. Duplicate memberships and unknown users are reported by the API. Members can view the list when `MEMBER_VIEW` is granted but cannot perform management actions.
+
 ## Quality checks
 
 - `npm run lint`

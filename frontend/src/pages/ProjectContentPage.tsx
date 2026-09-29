@@ -8,7 +8,10 @@ import { apiRequest } from '../services/api';
 type Content = { id: string; title: string; content: string; type: string; url?: string };
 export default function ProjectContentPage() {
   const { id } = useParams();
-  const { workspace } = useAuth();
+  const { workspace, hasWorkspacePermission } = useAuth();
+  const canCreate = hasWorkspacePermission('KNOWLEDGE_CREATE', workspace?.id);
+  const canUpdate = hasWorkspacePermission('KNOWLEDGE_UPDATE', workspace?.id);
+  const canDelete = hasWorkspacePermission('KNOWLEDGE_DELETE', workspace?.id);
   const [items, setItems] = useState<Content[]>([]);
   const [editing, setEditing] = useState<Content | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -50,7 +53,7 @@ export default function ProjectContentPage() {
           <h1 className="mt-2 text-3xl font-semibold">Content</h1>
           <p className="mt-2 text-muted">Capture the decisions and context your team needs.</p>
         </div>
-        <button
+        {canCreate && <button
           onClick={() => {
             setEditing(null);
             setShowForm(true);
@@ -58,7 +61,7 @@ export default function ProjectContentPage() {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover"
         >
           <Plus className="h-4 w-4" /> Add content
-        </button>
+        </button>}
       </div>
       {error && (
         <p className="mt-6 rounded-xl border border-error/30 bg-error/10 p-4 text-sm text-error">
@@ -84,7 +87,7 @@ export default function ProjectContentPage() {
                 <h2 className="mt-2 font-medium">{item.title}</h2>
               </div>
               <div className="flex gap-2 text-muted">
-                <button
+                {canUpdate && <button
                   aria-label="Edit content"
                   onClick={() => {
                     setEditing(item);
@@ -93,14 +96,14 @@ export default function ProjectContentPage() {
                   className="hover:text-foreground"
                 >
                   <Pencil className="h-4 w-4" />
-                </button>
-                <button
+                </button>}
+                {canDelete && <button
                   aria-label="Delete content"
                   onClick={() => void remove(item.id)}
                   className="hover:text-error"
                 >
                   <Trash2 className="h-4 w-4" />
-                </button>
+                </button>}
               </div>
             </div>
             <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-muted"> {item.content}</p>

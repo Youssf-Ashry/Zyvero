@@ -42,6 +42,8 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 - Public website services loaded from the backend service catalog
 - Customer Service Request workflow with customer tracking and admin status management
 - Backend-connected search and filtering for customer requests and workspace tasks
+- Centralized RBAC for global administration and workspace-scoped operations
+- Workspace Members management for adding existing users and changing/removing non-owner members
 - Customer Dashboard profile section with real authenticated user data
 - Profile name editing and local image avatar upload with replacement support
 
@@ -58,6 +60,7 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 | Task 6 — Company Service Management         | **COMPLETED** |
 | Task 7 — Customer Request Management        | **COMPLETED** |
 | Task 8 — Search & Filtering                 | **COMPLETED** |
+| Task 9 — Role-Based Access Control          | **COMPLETED** |
 
 Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system, Task 3 for project knowledge, and Task 4 for user registration and authentication. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
 
@@ -70,6 +73,10 @@ Task 6 adds Company Service Management. Global `USER` and `ADMIN` roles are sepa
 Task 7 adds Customer Request Management. Authenticated customers can select an active company service, submit a request, and track its status at `/requests`. Admins can review all requests and update their status from `/admin/requests`. Customer requests reference the existing `Service` model and remain separate from `ContactInquiry`.
 
 Task 8 adds database-backed Search & Filtering to `/admin/requests` and `/tasks`. Search and filter values are synchronized with URL query parameters and applied by NestJS/Prisma against PostgreSQL; the frontend does not fetch an entire dataset and filter it locally.
+
+Task 9 adds reusable workspace RBAC. Global `UserRole.ADMIN` remains separate from workspace `OWNER`, `ADMIN`, and `MEMBER` membership roles. Workspace permissions are defined centrally in `backend/src/auth/workspace-permission.ts` and enforced by `WorkspacePermissionGuard` after `AuthGuard`. Membership is always resolved from Prisma, so changing a workspace, project, or task ID cannot cross the workspace boundary. Authenticated requests without permission receive `403`; missing or invalid authentication remains `401`. Task assignment additionally requires `TASK_ASSIGN` whenever an assignee is set or changed. The frontend receives the backend-resolved workspace role and permission list for UX-only action visibility; the backend remains the security boundary.
+
+Workspace Members is available at `/settings/members`. Users with `MEMBER_INVITE` can add an existing Zyvero account by email as `MEMBER` or `ADMIN`; this is not an email invitation flow. Users with role-management or removal permissions can update non-owner roles and remove non-owner members. `OWNER` cannot be assigned, demoted, or removed through these endpoints.
 
 ## Design direction
 

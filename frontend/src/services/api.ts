@@ -40,3 +40,41 @@ export function assetUrl(path: string | null) {
   if (!path) return null;
   return path.startsWith('http') ? path : `${apiOrigin}${path}`;
 }
+
+export type WorkspaceMember = {
+  id: string;
+  name: string;
+  email: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+};
+
+export function getWorkspaceMembers(workspaceId: string) {
+  return apiRequest<{ members: WorkspaceMember[] }>(`/workspaces/${workspaceId}`);
+}
+
+export function addWorkspaceMember(
+  workspaceId: string,
+  data: { email: string; role: 'ADMIN' | 'MEMBER' },
+) {
+  return apiRequest<WorkspaceMember>(`/workspaces/${workspaceId}/members`, {
+    method: 'POST',
+    body: data,
+  });
+}
+
+export function updateWorkspaceMemberRole(
+  workspaceId: string,
+  memberId: string,
+  role: 'ADMIN' | 'MEMBER',
+) {
+  return apiRequest<WorkspaceMember>(`/workspaces/${workspaceId}/members/${memberId}`, {
+    method: 'PATCH',
+    body: { role },
+  });
+}
+
+export function removeWorkspaceMember(workspaceId: string, memberId: string) {
+  return apiRequest<void>(`/workspaces/${workspaceId}/members/${memberId}`, {
+    method: 'DELETE',
+  });
+}

@@ -7,6 +7,8 @@ import { TaskPriority, TaskStatus, WorkspaceRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ProjectService } from '../project/project.service.js';
 import { WorkspaceService } from '../workspace/workspace.service.js';
+import { Permission } from '../auth/workspace-permission.js';
+import { WorkspacePermissionService } from '../auth/workspace-permission.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { TaskQueryDto } from './dto/task-query.dto.js';
@@ -17,6 +19,7 @@ export class TaskService {
     private readonly prisma: PrismaService,
     private readonly projects: ProjectService,
     private readonly workspace: WorkspaceService,
+    private readonly permissions: WorkspacePermissionService,
   ) {}
 
   async list(workspaceId: string, projectId: string, userId: string) {
@@ -71,6 +74,9 @@ export class TaskService {
     dto: CreateTaskDto,
   ) {
     await this.projects.assertProject(workspaceId, projectId, userId);
+    if (dto.assigneeId) {
+      await this.permissions.assertPermission(workspaceId, userId, Permission.TASK_ASSIGN);
+    }
     await this.assertAssignee(workspaceId, dto.assigneeId);
     return this.prisma.task.create({
       data: {
@@ -120,6 +126,9 @@ export class TaskService {
       task.assigneeId !== userId
     ) {
       throw new ForbiddenException('You do not own this task');
+    }
+    if (dto.assigneeId !== undefined && dto.assigneeId !== task.assigneeId) {
+      await this.permissions.assertPermission(workspaceId, userId, Permission.TASK_ASSIGN);
     }
     await this.assertAssignee(workspaceId, dto.assigneeId);
     return this.prisma.task.update({

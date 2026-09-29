@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import AppShell from '../components/app/AppShell';
 import { useAuth } from '../context/AuthContext';
-import { apiRequest } from '../services/api';
+import { apiRequest, getWorkspaceMembers, type WorkspaceMember } from '../services/api';
+import TaskDetailsModal, { type TaskDetails } from '../components/app/TaskDetailsModal';
 
 type Project = {
   id: string;
@@ -14,15 +15,34 @@ type Project = {
   tasks: Task[];
   contents: Content[];
 };
-type Task = { id: string; title: string; status: string; priority: string };
+type Task = {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  priority: string;
+  assigneeId?: string | null;
+  assignee?: { id: string; name: string; email: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
 type Content = { id: string; title: string; content: string; type: string };
 export default function ProjectDetailPage() {
   const { id } = useParams();
-  const { workspace } = useAuth();
+  const { workspace, hasWorkspacePermission } = useAuth();
+  const canCreateTask = hasWorkspacePermission('TASK_CREATE', workspace?.id);
+  const canAssignTask = hasWorkspacePermission('TASK_ASSIGN', workspace?.id);
+  const canUpdateTask = hasWorkspacePermission('TASK_UPDATE', workspace?.id);
   const [project, setProject] = useState<Project | null>(null);
   const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskStatus, setTaskStatus] = useState('TODO');
+  const [taskPriority, setTaskPriority] = useState('MEDIUM');
+  const [taskAssigneeId, setTaskAssigneeId] = useState('');
   const [showTask, setShowTask] = useState(false);
   const [error, setError] = useState('');
+  const [members, setMembers] = useState<WorkspaceMember[]>([]);
+  const [selectedTask, setSelectedTask] = useState<TaskDetails | null>(null);
   const load = useCallback(
     () =>
       workspace &&
@@ -35,31 +55,35 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     void load();
   }, [load]);
+  useEffect(() => {
+    if (!workspace) return;
+    getWorkspaceMembers(workspace.id).then((result) => setMembers(result.members)).catch(() => {
+      setError('Unable to load workspace members.');
+    });
+  }, [workspace]);
   const createTask = async (event: FormEvent) => {
     event.preventDefault();
     if (!workspace || !id) return;
     try {
       await apiRequest(`/workspaces/${workspace.id}/projects/${id}/tasks`, {
         method: 'POST',
-        body: { title: taskTitle },
+        body: {
+          title: taskTitle,
+          description: taskDescription || undefined,
+          status: taskStatus,
+          priority: taskPriority,
+          assigneeId: taskAssigneeId || undefined,
+        },
       });
       setTaskTitle('');
+      setTaskDescription('');
+      setTaskStatus('TODO');
+      setTaskPriority('MEDIUM');
+      setTaskAssigneeId('');
       setShowTask(false);
       await load();
     } catch {
       setError('Unable to create task.');
-    }
-  };
-  const updateTask = async (task: Task) => {
-    if (!workspace || !id) return;
-    try {
-      await apiRequest(`/workspaces/${workspace.id}/projects/${id}/tasks/${task.id}`, {
-        method: 'PATCH',
-        body: { status: task.status === 'DONE' ? 'TODO' : 'DONE' },
-      });
-      await load();
-    } catch {
-      setError('Unable to update task.');
     }
   };
   return (
@@ -100,23 +124,62 @@ export default function ProjectDetailPage() {
                 <h2 className="flex items-center gap-2 font-semibold">
                   <ListTodo className="h-4 w-4 text-primary" /> Tasks
                 </h2>
-                <button
+                {canCreateTask && <button
                   onClick={() => setShowTask((v) => !v)}
                   className="inline-flex items-center gap-1 text-sm text-primary"
                 >
                   <Plus className="h-4 w-4" /> Add
-                </button>
+                </button>}
               </div>
-              {showTask && (
-                <form onSubmit={createTask} className="mt-4 flex gap-2">
+              {showTask && canCreateTask && (
+                <form onSubmit={createTask} className="mt-4 space-y-3">
                   <input
                     required
                     value={taskTitle}
                     onChange={(e) => setTaskTitle(e.target.value)}
                     placeholder="Task title"
-                    className="min-w-0 flex-1 rounded-xl border border-border bg-surface-secondary px-3 py-2 text-sm outline-none focus:border-primary"
+                    className="w-full rounded-xl border border-border bg-surface-secondary px-3 py-2 text-sm outline-none focus:border-primary"
                   />
-                  <button className="rounded-xl bg-primary px-3 py-2 text-sm">Add</button>
+                  <textarea
+                    rows={3}
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                    placeholder="Description (optional)"
+                    className="w-full resize-y rounded-xl border border-border bg-surface-secondary px-3 py-2 text-sm outline-none focus:border-primary"
+                  />
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <select
+                      value={taskStatus}
+                      onChange={(e) => setTaskStatus(e.target.value)}
+                      className="rounded-xl border border-border bg-surface-secondary px-3 py-2 text-sm outline-none focus:border-primary"
+                    >
+                      {['TODO', 'IN_PROGRESS', 'DONE', 'CANCELED'].map((value) => (
+                        <option key={value} value={value}>{value.replace('_', ' ')}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={taskPriority}
+                      onChange={(e) => setTaskPriority(e.target.value)}
+                      className="rounded-xl border border-border bg-surface-secondary px-3 py-2 text-sm outline-none focus:border-primary"
+                    >
+                      {['LOW', 'MEDIUM', 'HIGH', 'URGENT'].map((value) => (
+                        <option key={value} value={value}>{value}</option>
+                      ))}
+                    </select>
+                    {canAssignTask && (
+                      <select
+                        value={taskAssigneeId}
+                        onChange={(e) => setTaskAssigneeId(e.target.value)}
+                        className="rounded-xl border border-border bg-surface-secondary px-3 py-2 text-sm outline-none focus:border-primary"
+                      >
+                        <option value="">Unassigned</option>
+                        {members.map((member) => (
+                          <option key={member.id} value={member.id}>{member.name}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                  <button className="rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-white">Add task</button>
                 </form>
               )}
               <div className="mt-5 space-y-2">
@@ -126,7 +189,12 @@ export default function ProjectDetailPage() {
                   project.tasks.map((task) => (
                     <button
                       key={task.id}
-                      onClick={() => void updateTask(task)}
+                      onClick={() => setSelectedTask({
+                        ...task,
+                        projectId: id ?? '',
+                        projectName: project.name,
+                        assignee: task.assignee ?? members.find((member) => member.id === task.assigneeId),
+                      })}
                       className="flex w-full items-center gap-3 rounded-xl bg-surface-secondary px-3 py-3 text-left text-sm hover:bg-border"
                     >
                       <CheckCircle2
@@ -165,6 +233,20 @@ export default function ProjectDetailPage() {
             </section>
           </div>
         </>
+      )}
+      {selectedTask && workspace && (
+        <TaskDetailsModal
+          workspaceId={workspace.id}
+          task={selectedTask}
+          members={members}
+          canAssign={canAssignTask}
+          canUpdate={canUpdateTask}
+          onClose={() => setSelectedTask(null)}
+          onSaved={(updatedTask) => {
+            setSelectedTask(updatedTask);
+            void load();
+          }}
+        />
       )}
     </AppShell>
   );

@@ -6,6 +6,8 @@ import { AuthController } from './auth.controller.js';
 import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
 import { AdminGuard } from './admin.guard.js';
+import { WorkspacePermissionGuard } from './workspace-permission.guard.js';
+import { WorkspacePermissionService } from './workspace-permission.service.js';
 
 @Global()
 @Module({
@@ -22,7 +24,20 @@ import { AdminGuard } from './admin.guard.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard, AdminGuard],
-  exports: [AuthService, AuthGuard, AdminGuard, JwtModule],
+  providers: [
+    AuthService,
+    AuthGuard,
+    AdminGuard,
+    WorkspacePermissionGuard,
+    WorkspacePermissionService,
+  ],
+  exports: [
+    AuthService,
+    AuthGuard,
+    AdminGuard,
+    WorkspacePermissionGuard,
+    WorkspacePermissionService,
+    JwtModule,
+  ],
 })
 export class AuthModule {}

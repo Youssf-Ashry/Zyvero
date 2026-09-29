@@ -24,6 +24,7 @@ This repository contains the current Zyvero foundation and the completed first e
 - Company Service Management and admin dashboard
 - Customer Request Management and admin status workflow
 - Database-backed search and filtering for requests and tasks
+- Centralized workspace role-based access control
 
 ## Current State
 
@@ -63,6 +64,35 @@ URL query state -> NestJS validation -> Prisma where -> PostgreSQL -> filtered r
 Admin Customer Requests accepts `search`, `status`, `serviceId`, and `dateRange`. Search is case-insensitive across request title/description, customer name/email, and service name. Status, service, and date filters combine with AND semantics.
 
 Workspace Tasks accepts `search`, `status`, `priority`, `assigneeId`, and `projectId` through `GET /api/workspaces/:workspaceId/tasks`. Search covers task title and description, while project and assignee filters use the existing relations and workspace authorization. The `/admin/requests` and `/tasks` pages keep filter state in the URL and render backend-filtered results; local array filtering is not the source of truth.
+
+## Authorization and RBAC
+
+Zyvero has two intentionally separate authorization levels:
+
+```text
+global UserRole (USER | ADMIN) -> AdminGuard -> platform administration
+workspace WorkspaceRole (OWNER | ADMIN | MEMBER)
+  -> role-to-permission map
+  -> WorkspacePermissionGuard
+  -> workspace-scoped operation
+```
+
+`AdminGuard` remains the authority for `/admin`, services, and customer-request administration. Workspace roles are read from the `WorkspaceMember` record for the requested workspace and never trusted from the frontend or JWT. The centralized permission set covers projects, tasks, task assignment, knowledge, members, and workspace administration. Existing service-level ownership rules remain as a second, domain-specific boundary for member-owned projects, tasks, and project content.
+
+The frontend receives each workspace's current membership role and resolved permissions from the authenticated workspace list. Its permission helper hides or disables actions for usability only; every protected API repeats the database-backed membership and permission check. Unauthenticated requests return `401 Unauthorized`, while authenticated non-members and users without the required permission return `403 Forbidden`.
+
+## Workspace Members management
+
+The protected `/settings/members` page uses the current workspace from `AuthContext` and the existing APIs:
+
+```text
+GET    /api/workspaces/:workspaceId
+POST   /api/workspaces/:workspaceId/members
+PATCH  /api/workspaces/:workspaceId/members/:memberId
+DELETE /api/workspaces/:workspaceId/members/:memberId
+```
+
+Adding a member looks up an existing Zyvero user by email; it does not send invitations or create accounts. Only `ADMIN` and `MEMBER` can be assigned. The backend explicitly protects the existing `OWNER` membership from role changes/removal and never creates another owner. Member actions are shown by `MEMBER_INVITE`, `MEMBER_UPDATE_ROLE`, and `MEMBER_REMOVE`, but server-side guards remain authoritative.
 
 ## Customer Dashboard and profile
 

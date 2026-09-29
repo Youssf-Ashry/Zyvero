@@ -1,12 +1,9 @@
-import { IsEmail, IsIn } from 'class-validator';
+import { IsIn } from 'class-validator';
 import { WorkspaceRole } from '@prisma/client';
 
-export class AddMemberDto {
-  @IsEmail()
-  email!: string;
-
+export class UpdateMemberDto {
   @IsIn([WorkspaceRole.ADMIN, WorkspaceRole.MEMBER], {
     message: 'Only ADMIN or MEMBER roles can be assigned through this endpoint.',
   })
-  role: Exclude<WorkspaceRole, 'OWNER'> = WorkspaceRole.MEMBER;
+  role!: Exclude<WorkspaceRole, 'OWNER'>;
 }

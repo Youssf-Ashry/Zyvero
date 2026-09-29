@@ -9,6 +9,7 @@ import {
   ListTodo,
   X,
   ShieldCheck,
+  Users,
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
@@ -60,6 +61,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <Icon className="h-4 w-4" /> {label}
             </NavLink>
           ))}
+          <NavLink
+            to="/settings/members"
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${isActive ? 'bg-primary/15 text-foreground' : 'text-muted hover:bg-surface-secondary hover:text-foreground'}`
+            }
+          >
+            <Users className="h-4 w-4" /> Members
+          </NavLink>
         </div>
         {user?.role === 'ADMIN' && (
           <div className="mt-8 border-t border-border pt-5">

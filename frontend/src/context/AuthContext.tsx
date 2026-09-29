@@ -22,6 +22,8 @@ export type Workspace = {
   name: string;
   slug: string;
   _count?: { projects: number; members: number };
+  role?: 'OWNER' | 'ADMIN' | 'MEMBER';
+  permissions?: string[];
 };
 
 type AuthContextValue = {
@@ -34,6 +36,7 @@ type AuthContextValue = {
   signOut: () => Promise<void>;
   refreshWorkspaces: () => Promise<void>;
   refreshUser: () => Promise<User>;
+  hasWorkspacePermission: (permission: string, workspaceId?: string) => boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -110,6 +113,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       refreshWorkspaces,
       refreshUser,
+      hasWorkspacePermission: (permission: string, workspaceId?: string) =>
+        (workspaces.find((item) => item.id === workspaceId) ?? workspaces[0])?.permissions?.includes(
+          permission,
+        ) ?? false,
     }),
     [user, workspaces, loading, signIn, signUp, signOut, refreshWorkspaces, refreshUser],
   );

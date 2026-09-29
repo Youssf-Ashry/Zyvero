@@ -11,6 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard.js';
+import { WorkspacePermissionGuard } from '../auth/workspace-permission.guard.js';
+import { Permission, RequirePermissions } from '../auth/workspace-permission.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import type { AuthUser } from '../auth/auth.types.js';
 import { CreateWorkspaceContentDto } from './dto/create-workspace-content.dto.js';
@@ -18,16 +20,18 @@ import { UpdateWorkspaceContentDto } from './dto/update-workspace-content.dto.js
 import { WorkspaceContentService } from './workspace-content.service.js';
 
 @Controller('workspaces/:workspaceId/content')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, WorkspacePermissionGuard)
 export class WorkspaceContentController {
   constructor(private readonly content: WorkspaceContentService) {}
 
   @Get()
+  @RequirePermissions(Permission.KNOWLEDGE_VIEW)
   list(@CurrentUser() user: AuthUser, @Param('workspaceId') workspaceId: string) {
     return this.content.list(workspaceId, user.id);
   }
 
   @Post()
+  @RequirePermissions(Permission.KNOWLEDGE_CREATE)
   @HttpCode(HttpStatus.CREATED)
   create(
     @CurrentUser() user: AuthUser,
@@ -38,6 +42,7 @@ export class WorkspaceContentController {
   }
 
   @Get(':id')
+  @RequirePermissions(Permission.KNOWLEDGE_VIEW)
   get(
     @CurrentUser() user: AuthUser,
     @Param('workspaceId') workspaceId: string,
@@ -47,6 +52,7 @@ export class WorkspaceContentController {
   }
 
   @Patch(':id')
+  @RequirePermissions(Permission.KNOWLEDGE_UPDATE)
   update(
     @CurrentUser() user: AuthUser,
     @Param('workspaceId') workspaceId: string,
@@ -57,6 +63,7 @@ export class WorkspaceContentController {
   }
 
   @Delete(':id')
+  @RequirePermissions(Permission.KNOWLEDGE_DELETE)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @CurrentUser() user: AuthUser,

@@ -1,8 +1,9 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import AppShell from '../components/app/AppShell';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../services/api';
+import TaskDetailsModal, { type TaskDetails } from '../components/app/TaskDetailsModal';
 
 type Task = {
   id: string;
@@ -14,16 +15,20 @@ type Task = {
   assignee?: { id: string; name: string; email: string } | null;
 };
 type Project = { id: string; name: string };
-type Member = { user: { id: string; name: string; email: string } };
+type Member = { id: string; name: string; email: string; role: 'OWNER' | 'ADMIN' | 'MEMBER' };
 
 export default function TasksPage() {
   const { workspace } = useAuth();
+  const { hasWorkspacePermission } = useAuth();
   const [params, setParams] = useSearchParams();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedTask, setSelectedTask] = useState<TaskDetails | null>(null);
+  const canAssignTask = hasWorkspacePermission('TASK_ASSIGN', workspace?.id);
+  const canUpdateTask = hasWorkspacePermission('TASK_UPDATE', workspace?.id);
   const search = params.get('search') ?? '';
   const status = params.get('status') ?? '';
   const priority = params.get('priority') ?? '';
@@ -119,8 +124,8 @@ export default function TasksPage() {
           >
             <option value="">All assignees</option>
             {members.map((member) => (
-              <option key={member.user.id} value={member.user.id}>
-                {member.user.name}
+              <option key={member.id} value={member.id}>
+                {member.name}
               </option>
             ))}
           </select>
@@ -149,17 +154,20 @@ export default function TasksPage() {
           ) : (
             <div className="divide-y divide-border">
               {tasks.map((task) => (
-                <Link
+                <button
                   key={task.id}
-                  to={`/projects/${task.project.id}`}
-                  className="block p-5 hover:bg-surface-secondary"
+                  onClick={() => setSelectedTask({
+                    ...task,
+                    projectId: task.project.id,
+                    projectName: task.project.name,
+                  })}
+                  className="block w-full p-5 text-left hover:bg-surface-secondary"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="font-medium text-white">{task.title}</h2>
                       <p className="mt-1 text-sm text-muted">
-                        {task.project.name}
-                        {task.assignee ? ` · ${task.assignee.name}` : ''}
+                        {task.project.name} · {task.assignee?.name ?? 'Unassigned'}
                       </p>
                     </div>
                     <div className="flex gap-2 text-xs">
@@ -174,11 +182,38 @@ export default function TasksPage() {
                   {task.description && (
                     <p className="mt-3 text-sm text-muted">{task.description.slice(0, 180)}</p>
                   )}
-                </Link>
+                </button>
               ))}
             </div>
           )}
         </section>
+        {selectedTask && workspace && (
+          <TaskDetailsModal
+            workspaceId={workspace.id}
+            task={selectedTask}
+            members={members}
+            canAssign={canAssignTask}
+            canUpdate={canUpdateTask}
+            onClose={() => setSelectedTask(null)}
+            onSaved={(updatedTask) => {
+              setSelectedTask(updatedTask);
+              setTasks((current) =>
+                current.map((item) =>
+                  item.id === updatedTask.id
+                    ? {
+                        ...item,
+                        title: updatedTask.title,
+                        description: updatedTask.description ?? undefined,
+                        status: updatedTask.status,
+                        priority: updatedTask.priority,
+                        assignee: updatedTask.assignee ?? null,
+                      }
+                    : item,
+                ),
+              );
+            }}
+          />
+        )}
       </div>
     </AppShell>
   );
