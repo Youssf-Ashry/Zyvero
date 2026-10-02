@@ -95,6 +95,7 @@ model User {
   assignedTasks Task[]           @relation("TaskAssignee")
   createdTasks Task[]            @relation("TaskCreator")
   createdContent ProjectContent[] @relation("ContentCreator")
+  uploadedDocuments Document[]    @relation("DocumentUploader")
   customerRequests CustomerRequest[]
 }
 
@@ -126,6 +127,7 @@ model Workspace {
   members   WorkspaceMember[]
   projects  Project[]
   contents  WorkspaceContent[]
+  documents  Document[]
   @@index([ownerId])
 }
 
@@ -154,6 +156,7 @@ model Project {
   owner       User          @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   tasks       Task[]
   contents    ProjectContent[]
+  documents   Document[]
   @@index([workspaceId, status])
   @@index([ownerId])
 }
@@ -204,4 +207,25 @@ model WorkspaceContent {
   workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   @@index([workspaceId, type])
   @@index([workspaceId, updatedAt])
+}
+
+model Document {
+  id           String    @id @default(uuid())
+  workspaceId  String
+  projectId    String?
+  uploadedById String
+  originalName String
+  storedName   String
+  mimeType     String
+  size         Int
+  storageKey   String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project      Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy   User      @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId])
+  @@index([projectId])
+  @@index([uploadedById])
 }

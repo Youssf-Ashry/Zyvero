@@ -2,6 +2,7 @@ import { BookOpen, FileText, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import AppShell from '../components/app/AppShell';
+import DocumentsSection from '../components/app/DocumentsSection';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../services/api';
 
@@ -178,6 +179,8 @@ export default function WorkspaceKnowledgePage() {
           </div>
         )}
       </section>
+
+      {workspace && <DocumentsSection workspaceId={workspace.id} projects={projects} />}
 
       <section className="mt-12">
         <div className="flex items-center gap-3">

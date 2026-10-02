@@ -1,6 +1,6 @@
 # Zyvero Architecture
 
-This repository contains the current Zyvero foundation and the completed first eight internship milestones.
+This repository contains the current Zyvero foundation and completed Task 1 through Task 10 milestones.
 
 ## Current Scope
 
@@ -25,6 +25,7 @@ This repository contains the current Zyvero foundation and the completed first e
 - Customer Request Management and admin status workflow
 - Database-backed search and filtering for requests and tasks
 - Centralized workspace role-based access control
+- Backend Document metadata and authenticated local file management
 
 ## Current State
 
@@ -112,6 +113,58 @@ Workspace
 ```
 
 This separation keeps workspace context and project context distinct for future knowledge and AI capabilities.
+
+## Document architecture (Task 10)
+
+Binary files are represented by the `Document` model; `WorkspaceContent` and
+`ProjectContent` remain the text knowledge models. Every document belongs to a
+workspace and may optionally reference a project in that same workspace.
+Document metadata stores the original name, generated stored name, MIME type,
+size, logical storage key, uploader, and timestamps.
+
+The `DocumentsModule` separates HTTP handling, business rules, Prisma metadata,
+and physical storage. `DocumentStorage` is the replaceable abstraction and
+`LocalDocumentStorageService` currently stores files below
+`backend/uploads/documents`. Storage keys are generated from UUIDs and scoped
+by workspace and optional project; original names are never used as paths.
+
+The authenticated routes are:
+
+```text
+GET    /api/workspaces/:workspaceId/documents
+POST   /api/workspaces/:workspaceId/documents
+GET    /api/workspaces/:workspaceId/documents/:id
+GET    /api/workspaces/:workspaceId/documents/:id/download
+DELETE /api/workspaces/:workspaceId/documents/:id
+```
+
+All routes use JWT authentication and the existing workspace permission guard.
+Viewing and downloading require `KNOWLEDGE_VIEW`, uploading requires
+`KNOWLEDGE_CREATE`, and deletion requires `KNOWLEDGE_DELETE`. The backend
+verifies membership, workspace/project isolation, file presence, supported
+extension and MIME pairs (PDF, DOC, DOCX, TXT), non-empty content, and the
+10 MB limit. Documents are not publicly served; downloads stream through the
+authenticated API.
+
+## Document frontend integration (Task 10)
+
+Documents are rendered inside the existing Knowledge routes rather than in a
+separate file-manager area. Workspace Knowledge lists workspace-level files and
+allows an uploader to optionally choose a project. Project Knowledge lists only
+files whose `projectId` matches the current project. Existing text content CRUD
+and project/workspace navigation remain unchanged.
+
+`DocumentsSection` uses typed API helpers for listing, multipart upload,
+authenticated download, and deletion. It provides responsive cards, human
+readable sizes, file metadata, uploader/project context, upload progress state,
+validation feedback, retryable loading errors, empty states, and delete
+confirmation. Upload and delete controls are hidden using the current
+`AuthContext.hasWorkspacePermission` helper when the corresponding knowledge
+permission is missing; the backend remains authoritative for every request.
+
+Task 10 is complete within this defined scope. AI/RAG, extraction, OCR,
+embeddings, document search, sharing, versioning, collaborative editing, cloud
+storage, and antivirus/malware scanning remain intentional future limitations.
 
 ## Planned Future Direction
 

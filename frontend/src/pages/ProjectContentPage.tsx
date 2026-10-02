@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AppShell from '../components/app/AppShell';
+import DocumentsSection from '../components/app/DocumentsSection';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../services/api';
 type Content = { id: string; title: string; content: string; type: string; url?: string };
@@ -110,6 +111,7 @@ export default function ProjectContentPage() {
           </article>
         ))}
       </div>
+      {workspace && id && <DocumentsSection workspaceId={workspace.id} projectId={id} />}
       {items.length === 0 && !showForm && (
         <div className="mt-8 rounded-2xl border border-dashed border-border p-12 text-center">
           <BookOpen className="mx-auto h-8 w-8 text-muted" />

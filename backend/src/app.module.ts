@@ -14,6 +14,7 @@ import { ContentModule } from './content/content.module.js';
 import { WorkspaceContentModule } from './workspace-content/workspace-content.module.js';
 import { ServicesModule } from './services/services.module.js';
 import { CustomerRequestModule } from './customer-request/customer-request.module.js';
+import { DocumentsModule } from './documents/documents.module.js';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CustomerRequestModule } from './customer-request/customer-request.modul
     WorkspaceContentModule,
     ServicesModule,
     CustomerRequestModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

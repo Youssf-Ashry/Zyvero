@@ -93,6 +93,39 @@ Add a future permission by updating the centralized enum and role mapping, then 
 
 Open `/settings/members` from the authenticated application shell to manage the current workspace. Owners and workspace admins can add existing Zyvero users by email as `MEMBER` or `ADMIN`, update non-owner roles, and remove non-owner members according to their permissions. The page never offers `OWNER`; the backend DTO validation and service checks reject `OWNER` even if a request is manually crafted. Duplicate memberships and unknown users are reported by the API. Members can view the list when `MEMBER_VIEW` is granted but cannot perform management actions.
 
+## Task 10 — Document management
+
+The backend document API is available at `/api/workspaces/:workspaceId/documents`.
+Use a multipart `POST` with a `file` field and optionally a `projectId` field.
+The list, detail, download, and delete routes use the `:id` path parameter.
+All routes require JWT authentication and workspace membership. Existing
+knowledge permissions control access: `KNOWLEDGE_VIEW` for listing, details,
+and downloads; `KNOWLEDGE_CREATE` for uploads; and `KNOWLEDGE_DELETE` for
+deletion.
+
+Supported uploads are PDF, DOC, DOCX, and TXT. The backend requires a
+non-empty file, validates the extension and MIME type together, and limits the
+file to 10 MB. Files are stored locally in `backend/uploads/documents` through
+the `DocumentStorage` abstraction. Document files are not exposed by the public
+avatar static route; downloads must use the authenticated API. The root
+`.gitignore` already excludes local backend uploads.
+
+### Knowledge frontend integration
+
+Workspace Knowledge now includes workspace-level document cards and an upload
+flow with optional project selection. Project Knowledge includes only documents
+for its current project. The UI supports PDF, DOC, DOCX, and TXT selection,
+10 MB client-side guidance, upload progress, backend error messages, download,
+delete confirmation, loading skeletons, empty states, and retryable errors.
+Frontend validation improves usability only; the API still validates MIME type,
+extension, size, membership, and permissions.
+
+Document downloads use the authenticated API client and do not expose
+`storageKey`, filesystem paths, or the public avatar upload route. Task 10 does
+not add AI/RAG, extraction, OCR, embeddings, search, sharing, versioning,
+collaborative editing, cloud storage, or antivirus/malware scanning. Task 10
+is complete within this defined scope.
+
 ## Quality checks
 
 - `npm run lint`

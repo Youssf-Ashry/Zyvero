@@ -8,12 +8,12 @@ import { AppModule } from './app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const uploadDirectory = resolve(process.cwd(), 'uploads');
-  mkdirSync(uploadDirectory, { recursive: true });
+  const avatarDirectory = resolve(process.cwd(), 'uploads', 'avatars');
+  mkdirSync(avatarDirectory, { recursive: true });
   app
     .getHttpAdapter()
     .getInstance()
-    .use('/uploads', express.static(uploadDirectory));
+    .use('/uploads/avatars', express.static(avatarDirectory));
 
   app.setGlobalPrefix('api');
   app.enableCors({
