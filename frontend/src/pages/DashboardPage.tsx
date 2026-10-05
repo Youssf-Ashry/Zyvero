@@ -3,20 +3,11 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import AppShell from '../components/app/AppShell';
 import { useAuth } from '../context/AuthContext';
-import { apiRequest, assetUrl } from '../services/api';
-
-type Project = {
-  id: string;
-  name: string;
-  description?: string;
-  status: string;
-  createdAt: string;
-  _count?: { tasks: number; contents: number };
-};
+import { apiRequest, assetUrl, type ProjectRecord } from '../services/api';
 
 export default function DashboardPage() {
   const { user, workspace, refreshUser } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [name, setName] = useState(user?.name ?? '');
@@ -34,12 +25,14 @@ export default function DashboardPage() {
   }, [user]);
   useEffect(() => {
     if (!workspace) return;
-    apiRequest<Project[]>(`/workspaces/${workspace.id}/projects`)
+    apiRequest<ProjectRecord[]>(`/workspaces/${workspace.id}/projects`)
       .then(setProjects)
       .catch(() => setError('Unable to load your dashboard.'))
       .finally(() => setLoading(false));
   }, [workspace]);
-  const taskCount = projects.reduce((sum, project) => sum + (project._count?.tasks ?? 0), 0);
+  const taskCount = projects.reduce((sum, project) => sum + project.taskCount, 0);
+  const inProgressCount = projects.filter((project) => project.status === 'IN_PROGRESS').length;
+  const completedCount = projects.filter((project) => project.status === 'COMPLETED').length;
   return (
     <AppShell>
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
@@ -187,7 +180,9 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <Metric label="Projects" value={projects.length} icon={<FolderKanban />} />
+            <Metric label="Total projects" value={projects.length} icon={<FolderKanban />} />
+            <Metric label="In progress" value={inProgressCount} icon={<ListTodo />} />
+            <Metric label="Completed" value={completedCount} icon={<Sparkles />} />
             <Metric label="Tasks" value={taskCount} icon={<ListTodo />} />
             <Metric label="Workspace" value={workspace?.name ?? 'Workspace'} icon={<Sparkles />} />
           </div>
@@ -219,15 +214,14 @@ export default function DashboardPage() {
                     <div className="flex items-start justify-between gap-4">
                       <h3 className="font-medium">{project.name}</h3>
                       <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary">
-                        {project.status}
+                        {project.status.replace('_', ' ')}
                       </span>
                     </div>
                     <p className="mt-2 line-clamp-2 text-sm text-muted">
                       {project.description || 'No description yet.'}
                     </p>
                     <p className="mt-5 text-xs text-muted">
-                      {project._count?.tasks ?? 0} tasks · {project._count?.contents ?? 0} knowledge
-                      items
+                      {project.progress}% complete · {project.taskCount} tasks · {project.client?.name ?? 'No client'}
                     </p>
                   </Link>
                 ))}

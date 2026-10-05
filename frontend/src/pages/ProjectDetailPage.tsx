@@ -4,13 +4,17 @@ import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import AppShell from '../components/app/AppShell';
 import { useAuth } from '../context/AuthContext';
-import { apiRequest, getWorkspaceMembers, type WorkspaceMember } from '../services/api';
+import {
+  apiRequest,
+  getWorkspaceMembers,
+  updateProject,
+  type ProjectRecord,
+  type ProjectStatus,
+  type WorkspaceMember,
+} from '../services/api';
 import TaskDetailsModal, { type TaskDetails } from '../components/app/TaskDetailsModal';
 
-type Project = {
-  id: string;
-  name: string;
-  description?: string;
+type Project = ProjectRecord & {
   status: string;
   tasks: Task[];
   contents: Content[];
@@ -33,6 +37,7 @@ export default function ProjectDetailPage() {
   const canCreateTask = hasWorkspacePermission('TASK_CREATE', workspace?.id);
   const canAssignTask = hasWorkspacePermission('TASK_ASSIGN', workspace?.id);
   const canUpdateTask = hasWorkspacePermission('TASK_UPDATE', workspace?.id);
+  const canUpdateProject = hasWorkspacePermission('PROJECT_UPDATE', workspace?.id);
   const [project, setProject] = useState<Project | null>(null);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
@@ -43,6 +48,7 @@ export default function ProjectDetailPage() {
   const [error, setError] = useState('');
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskDetails | null>(null);
+  const [statusBusy, setStatusBusy] = useState(false);
   const load = useCallback(
     () =>
       workspace &&
@@ -86,6 +92,18 @@ export default function ProjectDetailPage() {
       setError('Unable to create task.');
     }
   };
+  const updateStatus = async (status: ProjectStatus) => {
+    if (!workspace || !id || !canUpdateProject) return;
+    setStatusBusy(true);
+    try {
+      await updateProject(workspace.id, id, { status });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to update project status.');
+    } finally {
+      setStatusBusy(false);
+    }
+  };
   return (
     <AppShell>
       <Link
@@ -103,13 +121,37 @@ export default function ProjectDetailPage() {
         <>
           <div className="mt-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
             <div>
-              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-                {project.status}
-              </span>
+              {canUpdateProject ? (
+                <select
+                  value={project.status}
+                  disabled={statusBusy}
+                  onChange={(event) => void updateStatus(event.target.value as ProjectStatus)}
+                  className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary outline-none"
+                >
+                  {['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD'].map((status) => (
+                    <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                  ))}
+                </select>
+              ) : (
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
+                  {project.status.replace('_', ' ')}
+                </span>
+              )}
               <h1 className="mt-4 text-3xl font-semibold">{project.name}</h1>
               <p className="mt-2 max-w-2xl text-muted">
                 {project.description || 'No project description yet.'}
               </p>
+              <div className="mt-4 flex flex-wrap gap-3 text-sm text-muted">
+                <span>{project.progress}% complete ({project.completedTaskCount}/{project.taskCount} tasks)</span>
+                <span>Client: {project.client?.name ?? 'Not assigned'}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {project.teamMembers.length ? project.teamMembers.map((member) => (
+                  <span key={member.id} className="rounded-full bg-surface-secondary px-3 py-1 text-xs text-muted">
+                    {member.name}
+                  </span>
+                )) : <span className="text-xs text-muted">No team members assigned.</span>}
+              </div>
             </div>
             <Link
               to={`/projects/${id}/content`}

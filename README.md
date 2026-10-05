@@ -62,6 +62,7 @@ The project foundation, landing page, Contact / Inquiry system, authentication, 
 | Task 8 — Search & Filtering                 | **COMPLETED** |
 | Task 9 — Role-Based Access Control          | **COMPLETED** |
 | Task 10 — File & Document Management        | **COMPLETED** |
+| Task 11 — Client Project Management         | **IMPLEMENTED** |
 
 Task 1 was the first internship milestone, followed by Task 2 for the Contact / Inquiry system, Task 3 for project knowledge, and Task 4 for user registration and authentication. The authenticated SaaS foundation now provides the base for future Zyvero product capabilities. Workspace Knowledge is shared across a workspace, while Project Knowledge remains scoped to an individual project.
 
@@ -82,6 +83,17 @@ Workspace Members is available at `/settings/members`. Users with `MEMBER_INVITE
 Task 10 adds the backend Document foundation and frontend Knowledge integration. A `Document` belongs to a workspace and may optionally belong to a project, while existing text knowledge models remain unchanged. Authenticated document APIs use the existing `KNOWLEDGE_VIEW`, `KNOWLEDGE_CREATE`, and `KNOWLEDGE_DELETE` workspace permissions. PDF, DOC, DOCX, and TXT uploads are limited to 10 MB, stored locally behind a storage abstraction under `backend/uploads/documents`, and exposed only through authenticated download routes. Physical paths and client-provided uploader identities are never exposed or trusted.
 
 Task 10 integrates documents into the existing Workspace Knowledge and Project Knowledge experiences. Users with `KNOWLEDGE_VIEW` see responsive document cards with file metadata, uploader, project context, download, loading, empty, and error states. Users with `KNOWLEDGE_CREATE` can upload supported files, optionally selecting a project from Workspace Knowledge; users with `KNOWLEDGE_DELETE` can delete documents after confirmation. The frontend uses the centralized API client and keeps backend authorization authoritative.
+
+Task 11 extends the existing project system into the Client Project Management platform. A project keeps its internal `owner` relationship and now has a separate nullable `client -> User` relationship. Clients are selected from users who belong to the project workspace; no duplicate Client model or global user directory is exposed. `ProjectMember` assigns multiple workspace members through the existing `WorkspaceMember` model, preventing cross-workspace assignments.
+
+Projects use the statuses `NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`, and `ON_HOLD`. The migration explicitly maps legacy `PLANNING` to `NOT_STARTED`, `ACTIVE` to `IN_PROGRESS`, and `ARCHIVED` to `ON_HOLD` without deleting projects. Progress is derived from tasks (`DONE` divided by non-canceled tasks) and is returned with task counts; it is not stored as a second lifecycle status.
+
+The existing project APIs remain the single project API:
+
+- `GET/POST /api/workspaces/:workspaceId/projects`
+- `GET/PATCH/DELETE /api/workspaces/:workspaceId/projects/:projectId`
+
+Responses include safe owner/client users, assigned team members, status, task counts, and derived progress. Assignment changes use the centralized `PROJECT_ASSIGN` permission (workspace `OWNER` and `ADMIN`); project visibility remains workspace-wide, while backend workspace membership and permission checks remain authoritative. The Projects, Project Detail, and Dashboard pages were extended without replacing Tasks, Project Knowledge, or Documents.
 
 ## Design direction
 

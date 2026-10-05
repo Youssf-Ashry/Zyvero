@@ -1,6 +1,6 @@
 # Zyvero Architecture
 
-This repository contains the current Zyvero foundation and completed Task 1 through Task 10 milestones.
+This repository contains the current Zyvero foundation and completed Task 1 through Task 10 milestones, plus the implemented Task 11 Client Project Management platform.
 
 ## Current Scope
 
@@ -26,6 +26,7 @@ This repository contains the current Zyvero foundation and completed Task 1 thro
 - Database-backed search and filtering for requests and tasks
 - Centralized workspace role-based access control
 - Backend Document metadata and authenticated local file management
+- Client-aware project management with workspace-member project assignments
 
 ## Current State
 
@@ -36,6 +37,12 @@ Task 6 adds a global `UserRole` (`USER` or `ADMIN`) for company-level administra
 Task 7 adds `CustomerRequest`, which connects an authenticated customer to an existing `Service`. `RequestStatus` supports `NEW`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED`. Customers can create and read only their own requests; admins can list all requests, inspect safe customer details, and update status.
 
 Task 8 adds backend-connected search and filtering to the existing Admin Customer Requests and workspace Tasks sections. URL query state is validated by NestJS and translated into Prisma `where` conditions executed by PostgreSQL.
+
+Task 11 extends the existing project domain without introducing a duplicate client identity. `Project.owner` remains the internal project owner, while nullable `Project.client -> User` represents the associated client. Client selection is limited to users who are members of the project workspace. `ProjectMember` joins projects to `WorkspaceMember`, so every assigned team member is in the same workspace.
+
+The project lifecycle enum is `NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`, or `ON_HOLD`. The Task 11 migration preserves legacy records by explicitly mapping `PLANNING`, `ACTIVE`, and `ARCHIVED` to the new values. Progress is derived at read time from tasks: completed `DONE` tasks divided by non-canceled actionable tasks, with zero returned when there are no actionable tasks.
+
+Project CRUD remains under `/api/workspaces/:workspaceId/projects` and its `:projectId` child routes. Responses map safe owner/client users, team members, task counts, and progress rather than exposing Prisma entities. `PROJECT_ASSIGN` is part of the existing centralized workspace permission map and is granted to `OWNER` and `ADMIN`; project visibility remains workspace-wide and is not restricted to assigned members.
 
 ## Company Service Management
 

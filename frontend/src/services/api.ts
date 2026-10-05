@@ -131,3 +131,54 @@ export function removeWorkspaceMember(workspaceId: string, memberId: string) {
     method: 'DELETE',
   });
 }
+
+export type ProjectStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'ON_HOLD';
+export type ProjectPerson = { id: string; name: string; email: string; avatarUrl?: string | null };
+
+export type ProjectRecord = {
+  id: string;
+  name: string;
+  description: string | null;
+  status: ProjectStatus;
+  owner: ProjectPerson;
+  client: ProjectPerson | null;
+  teamMembers: ProjectPerson[];
+  taskCount: number;
+  completedTaskCount: number;
+  progress: number;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { tasks: number; contents: number };
+};
+
+export type ProjectInput = {
+  name?: string;
+  description?: string;
+  status?: ProjectStatus;
+  clientId?: string | null;
+  projectMemberIds?: string[];
+};
+
+export function getProjects(workspaceId: string) {
+  return apiRequest<ProjectRecord[]>(`/workspaces/${workspaceId}/projects`);
+}
+
+export function createProject(workspaceId: string, data: Required<Pick<ProjectInput, 'name'>> & Omit<ProjectInput, 'name'>) {
+  return apiRequest<ProjectRecord>(`/workspaces/${workspaceId}/projects`, {
+    method: 'POST',
+    body: data,
+  });
+}
+
+export function updateProject(workspaceId: string, projectId: string, data: ProjectInput) {
+  return apiRequest<ProjectRecord>(`/workspaces/${workspaceId}/projects/${projectId}`, {
+    method: 'PATCH',
+    body: data,
+  });
+}
+
+export function deleteProject(workspaceId: string, projectId: string) {
+  return apiRequest<void>(`/workspaces/${workspaceId}/projects/${projectId}`, {
+    method: 'DELETE',
+  });
+}

@@ -133,3 +133,16 @@ is complete within this defined scope.
 - `npx prettier --check .`
 
 These checks guard the current foundation and completed Task 1, Task 2, Task 3, and Task 4 implementations while keeping future changes consistent.
+
+## Task 11 — Client Project Management
+
+Task 11 uses the existing workspace-scoped project endpoints:
+
+- `GET/POST /api/workspaces/:workspaceId/projects`
+- `GET/PATCH/DELETE /api/workspaces/:workspaceId/projects/:projectId`
+
+Create and update payloads support `name`, `description`, `status`, nullable `clientId`, and optional `projectMemberIds`. Client and member IDs are validated against workspace membership on the backend. On create, assignments are optional. On update, omitting `projectMemberIds` preserves assignments; supplying it replaces the complete assignment set transactionally.
+
+The supported statuses are `NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`, and `ON_HOLD`. The migration maps legacy statuses explicitly and does not delete project records. Progress is derived from existing tasks and returned with `taskCount`, `completedTaskCount`, and `progress`; canceled tasks are excluded from the actionable denominator.
+
+Assignment changes require the centralized `PROJECT_ASSIGN` permission. Workspace owners and admins can assign clients and team members; workspace members cannot. Project access itself remains workspace-member based, so assignment does not change visibility. The Projects, Project Detail, and Dashboard pages consume the enriched project response while preserving task, knowledge, document, search, and customer-request flows.
